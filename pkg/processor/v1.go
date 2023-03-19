@@ -73,7 +73,7 @@ func (p *V1) processNextJob() error {
 func (p *V1) runJob(job interfaces.Job) error {
 	switch j := job.(type) {
 	case interfaces.RetryableRevertibleJob:
-		p.runRetryableJob(j)
+		p.runRetryableRevertibleJob(j)
 		return nil
 	case interfaces.RevertibleJob:
 		p.runRevertibleJob(j)
