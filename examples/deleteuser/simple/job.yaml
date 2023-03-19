@@ -1,0 +1,36 @@
+name: SimpleDeleteUserDataJob
+jobID: "delete user data"
+type: Job
+imports:
+  - "github.com/mtvarkovsky/goodjob/examples/deleteuser/dummyservices"
+arguments:
+  - name: userID
+    type: string
+  - name: usersClient
+    type: "*dummyservices.UserServiceClient"
+  - name: authClient
+    type: "*dummyservices.AuthServiceClient"
+  - name: ordersClient
+    type: "*dummyservices.OrdersServiceClient"
+tasks:
+  - task: SafeDeleteAuthDataTask
+    taskID: "safe delete user auth data"
+    arguments:
+      - name: authClient
+        valueFromJob: authClient
+      - name: userID
+        valueFromJob: userID
+  - task: SafeDeleteUserTask
+    taskID: "safe delete user data"
+    arguments:
+      - name: usersClient
+        valueFromJob: usersClient
+      - name: userID
+        valueFromJob: userID
+  - task: SafeDeleteUserOrdersTask
+    taskID: "safe delete user orders data"
+    arguments:
+      - name: ordersClient
+        valueFromJob: ordersClient
+      - name: userID
+        valueFromJob: userID

@@ -52,16 +52,19 @@ var (
 	}
 
 	jobStructFieldToType = map[string]string{
-		"JobID":          "interfaces.JobID",
-		"TaskID":         "interfaces.TaskID",
-		"Tasks":          "[]interfaces.Task",
-		"TaskArgs":       "map[interfaces.TaskID]*interfaces.TaskArg",
-		"JobArgs":        "[]interfaces.JobArg",
-		"LastTask":       "interfaces.Task",
-		"LastTaskPos":    "int",
-		"LastTaskResult": "*interfaces.TaskResult",
-		"Visible":        "bool",
-		"Job":            "interfaces.Job",
+		"JobID":                  "interfaces.JobID",
+		"TaskID":                 "interfaces.TaskID",
+		"Tasks":                  "[]interfaces.Task",
+		"TaskArgs":               "map[interfaces.TaskID]*interfaces.TaskArg",
+		"JobArgs":                "[]interfaces.JobArg",
+		"LastTask":               "interfaces.Task",
+		"LastTaskPos":            "int",
+		"LastTaskResult":         "*interfaces.TaskResult",
+		"Visible":                "bool",
+		"Job":                    "interfaces.Job",
+		"RetryableJob":           "interfaces.RetryableJob",
+		"RevertibleJob":          "interfaces.RevertibleJob",
+		"RetryableRevertibleJob": "interfaces.RetryableRevertibleJob",
 	}
 
 	jobStructFields = map[string]string{
@@ -111,7 +114,7 @@ func main() {
 	destination := os.Args[3]
 	f, err := os.Create(destination)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		os.Exit(65)
 		return
 	}
@@ -119,7 +122,7 @@ func main() {
 
 	specBytes, err := os.ReadFile(specPath)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		os.Exit(65)
 		return
 	}
@@ -127,7 +130,7 @@ func main() {
 	spec := jobSpec{}
 	err = yaml.Unmarshal(specBytes, &spec)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		os.Exit(65)
 		return
 	}
@@ -135,20 +138,20 @@ func main() {
 	gen := newGenerator(pkg, destination, &spec)
 	err = gen.generateJob()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		os.Exit(65)
 		return
 	}
 
 	formattedCode, err := format.Source([]byte(gen.builder.String()))
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		os.Exit(65)
 		return
 	}
 	_, err = fmt.Fprint(f, string(formattedCode))
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		os.Exit(65)
 		return
 	}
@@ -311,7 +314,7 @@ func (g *generator) generateJob() error {
 
 	if g.jobSpec.Type == RetryableJob {
 		g.builder.WriteString("\t\tRetryThreshold: retryThreshold,\n")
-		g.builder.WriteString("\t\tRetryThresholdCount: make(map[executor.TaskID]int),\n")
+		g.builder.WriteString("\t\tRetryThresholdCount: make(map[interfaces.TaskID]int),\n")
 	}
 
 	if g.jobSpec.Type == RevertibleJob {
@@ -320,9 +323,9 @@ func (g *generator) generateJob() error {
 
 	if g.jobSpec.Type == RetryableRevertibleJob {
 		g.builder.WriteString("\t\tForwardRetryThreshold: forwardRetryThreshold,\n")
-		g.builder.WriteString("\t\tForwardRetryThresholdCount: make(map[executor.TaskID]int),\n")
+		g.builder.WriteString("\t\tForwardRetryThresholdCount: make(map[interfaces.TaskID]int),\n")
 		g.builder.WriteString("\t\tBackwardRetryThreshold: backwardRetryThreshold,\n")
-		g.builder.WriteString("\t\tBackwardRetryThresholdCount: make(map[executor.TaskID]int),\n")
+		g.builder.WriteString("\t\tBackwardRetryThresholdCount: make(map[interfaces.TaskID]int),\n")
 		g.builder.WriteString("\t\tRevertState: false,\n")
 	}
 
@@ -398,12 +401,12 @@ func (g *generator) generateJob() error {
 		g.builder.WriteString("}\n\n")
 
 		// implement IncreaseRetryCount()
-		g.builder.WriteString(fmt.Sprintf("func (j *%s) IncreaseRetryCount(taskID iterfaces.TaskID) {\n", g.jobSpec.Name))
+		g.builder.WriteString(fmt.Sprintf("func (j *%s) IncreaseRetryCount(taskID interfaces.TaskID) {\n", g.jobSpec.Name))
 		g.builder.WriteString("\tj.RetryThresholdCount[taskID]++\n")
 		g.builder.WriteString("}\n\n")
 
 		// implement RetryThresholdReached()
-		g.builder.WriteString(fmt.Sprintf("func (j *%s) RetryThresholdReached(taskID iterfaces.TaskID) bool {\n", g.jobSpec.Name))
+		g.builder.WriteString(fmt.Sprintf("func (j *%s) RetryThresholdReached(taskID interfaces.TaskID) bool {\n", g.jobSpec.Name))
 		g.builder.WriteString("\treturn j.RetryThresholdCount[taskID] >= j.RetryThreshold")
 		g.builder.WriteString("}\n\n")
 	}
@@ -445,19 +448,21 @@ func (g *generator) generateJob() error {
 		g.builder.WriteString("}\n\n")
 
 		// implement IncreaseRetryCount()
-		g.builder.WriteString(fmt.Sprintf("func (j *%s) IncreaseRetryCount(taskID iterfaces.TaskID) {\n", g.jobSpec.Name))
+		g.builder.WriteString(fmt.Sprintf("func (j *%s) IncreaseRetryCount(taskID interfaces.TaskID) {\n", g.jobSpec.Name))
 		g.builder.WriteString("\tif j.RevertState {\n")
 		g.builder.WriteString("\t\tj.BackwardRetryThresholdCount[taskID]++\n")
 		g.builder.WriteString("\t} else {\n")
 		g.builder.WriteString("\t\tj.ForwardRetryThresholdCount[taskID]++\n")
+		g.builder.WriteString("\t}\n")
 		g.builder.WriteString("}\n\n")
 
 		// implement RetryThresholdReached()
-		g.builder.WriteString(fmt.Sprintf("func (j *%s) RetryThresholdReached(taskID iterfaces.TaskID) bool {\n", g.jobSpec.Name))
+		g.builder.WriteString(fmt.Sprintf("func (j *%s) RetryThresholdReached(taskID interfaces.TaskID) bool {\n", g.jobSpec.Name))
 		g.builder.WriteString("\tif j.RevertState {\n")
-		g.builder.WriteString("\t\treturn j.BackwardRetryThresholdCount[taskID] >= j.BackwardRetryThreshold")
+		g.builder.WriteString("\t\treturn j.BackwardRetryThresholdCount[taskID] >= j.BackwardRetryThreshold\n")
 		g.builder.WriteString("\t} else {\n")
-		g.builder.WriteString("\t\treturn j.ForwardRetryThresholdCount[taskID] >= j.ForwardRetryThreshold")
+		g.builder.WriteString("\t\treturn j.ForwardRetryThresholdCount[taskID] >= j.ForwardRetryThreshold\n")
+		g.builder.WriteString("\t}\n")
 		g.builder.WriteString("}\n\n")
 
 		// implement GetTasksToRevert()
