@@ -3,6 +3,7 @@ jobID: "delete user data"
 type: Job
 imports:
   - "github.com/mtvarkovsky/goodjob/examples/deleteuser/dummyservices"
+  - "github.com/mtvarkovsky/goodjob/examples/deleteuser"
 arguments:
   - name: userID
     type: string
@@ -13,21 +14,21 @@ arguments:
   - name: ordersClient
     type: "*dummyservices.OrdersServiceClient"
 tasks:
-  - task: SafeDeleteAuthDataTask
+  - task: "deleteuser.SafeDeleteAuthDataTask"
     taskID: "safe delete user auth data"
     arguments:
       - name: authClient
         valueFromJob: authClient
       - name: userID
         valueFromJob: userID
-  - task: SafeDeleteUserTask
+  - task: "deleteuser.SafeDeleteUserTask"
     taskID: "safe delete user data"
     arguments:
       - name: usersClient
         valueFromJob: usersClient
       - name: userID
         valueFromJob: userID
-  - task: SafeDeleteUserOrdersTask
+  - task: "deleteuser.SafeDeleteUserOrdersTask"
     taskID: "safe delete user orders data"
     arguments:
       - name: ordersClient
