@@ -1,0 +1,91 @@
+name: QuadraticEquationJob
+jobID: "quadratic equation (a * x^2) + (b * x) + c = 0"
+type: Job
+arguments:
+  - name: a
+    type: float64
+  - name: b
+    type: float64
+  - name: c
+    type: float64
+tasks:
+  - task: MultiplyNumbersTask
+    taskID: "calculate b^2"
+    arguments:
+      - name: b
+        valueFromJob: b
+      - name: b
+        valueFromJob: b
+  - task: MultiplyNumbersTask
+    taskID: "calculate 4 * a * c"
+    arguments:
+      - name: 4
+        valueFromLiteral: 4.0
+      - name: a
+        valueFromJob: a
+      - name: c
+        valueFromJob: c
+  - task: SubtractNumbersTask
+    taskID: "calculate b^2 - (4 * a * c)"
+    arguments:
+      - name: "b^2"
+        valueFromTask: "calculate b^2"
+      - name: "4 * a * c"
+        valueFromTask: "calculate 4 * a * c"
+  - task: SquareRootOfNumberTask
+    taskID: "calculate sqrt(b^2 - (4 * a * c))"
+    arguments:
+      - name: "sqrt(b^2 - (4 * a * c))"
+        valueFromTask: "calculate b^2 - (4 * a * c)"
+  - task: SubtractNumbersTask
+    taskID: "calculate -b"
+    arguments:
+      - name: 0
+        valueFromLiteral: 0.0
+      - name: b
+        valueFromJob: b
+  - task: SubtractNumbersTask
+    taskID: "calculate -b - sqrt(b^2 - (4 * a * c))"
+    arguments:
+      - name: "-b"
+        valueFromTask: "calculate -b"
+      - name: "sqrt(b^2 - (4 * a * c)"
+        valueFromTask: "calculate sqrt(b^2 - (4 * a * c))"
+  - task: AddNumbersTask
+    taskID: "calculate -b + sqrt(b^2 - (4 * a * c))"
+    arguments:
+      - name: "-b"
+        valueFromTask: "calculate -b"
+      - name: "sqrt(b^2 - (4 * a * c)"
+        valueFromTask: "calculate sqrt(b^2 - (4 * a * c))"
+  - task: MultiplyNumbersTask
+    taskID: "calculate 2 * a"
+    arguments:
+      - name: "2"
+        valueFromLiteral: 2.0
+      - name: a
+        valueFromJob: a
+  - task: DivideNumbersTask
+    taskID: "calculate (-b - sqrt(b^2 - (4 * a * c))) / (2 * a)"
+    arguments:
+      - name: "-b - sqrt(b^2 - (4 * a * c))"
+        valueFromTask: "calculate -b - sqrt(b^2 - (4 * a * c))"
+      - name: "2 * a"
+        valueFromTask: "calculate 2 * a"
+  - task: DivideNumbersTask
+    taskID: "calculate (-b + sqrt(b^2 - (4 * a * c))) / (2 * a)"
+    arguments:
+      - name: "-b + sqrt(b^2 - (4 * a * c))"
+        valueFromTask: "calculate -b + sqrt(b^2 - (4 * a * c))"
+      - name: "2 * a"
+        valueFromTask: "calculate 2 * a"
+  - task: GetEquationSolutionTask
+    taskID: "solution x1, x2"
+    arguments:
+      - name: x1
+        valueFromTask: "calculate (-b + sqrt(b^2 - (4 * a * c))) / (2 * a)"
+      - name: x2
+        valueFromTask: "calculate (-b - sqrt(b^2 - (4 * a * c))) / (2 * a)"
+
+
+
