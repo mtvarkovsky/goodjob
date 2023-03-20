@@ -9,7 +9,7 @@ import (
 type (
 	// InMemQueue - simple in memory queue without priority. Useful for tests and examples.
 	InMemQueue struct {
-		sync.RWMutex
+		mu           sync.Mutex
 		maxSize      int
 		items        []interfaces.Job
 		itemPosition map[interfaces.JobID]int
@@ -26,8 +26,8 @@ func NewInMemQueue(maxSize int) *InMemQueue {
 }
 
 func (q *InMemQueue) AddJob(job interfaces.Job, args ...any) error {
-	q.Lock()
-	defer q.Unlock()
+	q.mu.Lock()
+	defer q.mu.Unlock()
 	if len(q.items) == q.maxSize {
 		return fmt.Errorf("queue size limit reached")
 	}
@@ -41,8 +41,8 @@ func (q *InMemQueue) AddJob(job interfaces.Job, args ...any) error {
 }
 
 func (q *InMemQueue) GetNextJob(args ...any) (interfaces.Job, error) {
-	q.RLock()
-	defer q.RUnlock()
+	q.mu.Lock()
+	defer q.mu.Unlock()
 
 	if len(q.items) == 0 {
 		return nil, nil
@@ -53,7 +53,10 @@ func (q *InMemQueue) GetNextJob(args ...any) (interfaces.Job, error) {
 	for i, job := range q.items {
 		if job.GetVisible() {
 			next = q.items[i]
-			pos, _ := q.itemPosition[next.GetID()]
+			pos, found := q.itemPosition[next.GetID()]
+			if !found {
+				return nil, fmt.Errorf("job not found in queue")
+			}
 			q.items[pos].SetVisible(false)
 			break
 		}
@@ -63,8 +66,8 @@ func (q *InMemQueue) GetNextJob(args ...any) (interfaces.Job, error) {
 }
 
 func (q *InMemQueue) RemoveJob(id interfaces.JobID, args ...any) error {
-	q.Lock()
-	defer q.Unlock()
+	q.mu.Lock()
+	defer q.mu.Unlock()
 
 	pos, found := q.itemPosition[id]
 	if !found {
@@ -94,8 +97,8 @@ func (q *InMemQueue) RemoveJob(id interfaces.JobID, args ...any) error {
 }
 
 func (q *InMemQueue) SetJobVisibility(id interfaces.JobID, visible bool, args ...any) error {
-	q.RLock()
-	defer q.RUnlock()
+	q.mu.Lock()
+	defer q.mu.Unlock()
 
 	pos, found := q.itemPosition[id]
 	if !found {

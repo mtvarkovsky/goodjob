@@ -115,6 +115,11 @@ func (p *V1) runBasicJob(job interfaces.Job) {
 		// TODO: insert error reporting system
 		return
 	}
+	err = p.Queue.RemoveJob(job.GetID())
+	if err != nil {
+		// TODO: insert error reporting system
+		return
+	}
 }
 
 func (p *V1) prepareTaskArgs(job interfaces.Job, task interfaces.Task) ([]*interfaces.TaskArg, error) {
@@ -216,6 +221,11 @@ func (p *V1) runRetryableJob(job interfaces.RetryableJob) {
 		// TODO: insert error reporting system
 		return
 	}
+	err = p.Queue.RemoveJob(job.GetID())
+	if err != nil {
+		// TODO: insert error reporting system
+		return
+	}
 }
 
 func (p *V1) runRevertibleJob(job interfaces.RevertibleJob) {
@@ -273,6 +283,11 @@ func (p *V1) runRevertibleJob(job interfaces.RevertibleJob) {
 	}
 
 	err := p.saveJobResult(job)
+	if err != nil {
+		// TODO: insert error reporting system
+		return
+	}
+	err = p.Queue.RemoveJob(job.GetID())
 	if err != nil {
 		// TODO: insert error reporting system
 		return
@@ -359,6 +374,11 @@ func (p *V1) runRetryableRevertibleJob(job interfaces.RetryableRevertibleJob) {
 	}
 
 	err := p.saveJobResult(job)
+	if err != nil {
+		// TODO: insert error reporting system
+		return
+	}
+	err = p.Queue.RemoveJob(job.GetID())
 	if err != nil {
 		// TODO: insert error reporting system
 		return
