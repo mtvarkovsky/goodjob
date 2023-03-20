@@ -9,6 +9,7 @@ import (
 )
 
 type QuadraticEquationJob struct {
+	LastTask       interfaces.Task
 	LastTaskPos    int
 	LastTaskResult *interfaces.TaskResult
 	ID             interfaces.JobID
@@ -16,7 +17,6 @@ type QuadraticEquationJob struct {
 	Tasks          []interfaces.Task
 	TaskArgs       map[interfaces.TaskID][]*interfaces.TaskArg
 	Visible        bool
-	LastTask       interfaces.Task
 }
 
 func NewQuadraticEquationJob(a float64, b float64, c float64) interfaces.Job {

@@ -205,6 +205,7 @@ func (p *V1) runRetryableJob(job interfaces.RetryableJob) {
 					// TODO: insert error reporting system
 					return
 				}
+				return
 			}
 			break
 		}
@@ -247,7 +248,7 @@ func (p *V1) runRevertibleJob(job interfaces.RevertibleJob) {
 				// TODO: insert error reporting system
 				return
 			}
-			break
+			return
 		}
 	}
 
@@ -318,6 +319,7 @@ func (p *V1) runRetryableRevertibleJob(job interfaces.RetryableRevertibleJob) {
 					// TODO: insert error reporting system
 					return
 				}
+				return
 			} else {
 				job.SetRevertState(true)
 				err := p.Queue.SetJobVisibility(job.GetID(), true)
@@ -325,8 +327,8 @@ func (p *V1) runRetryableRevertibleJob(job interfaces.RetryableRevertibleJob) {
 					// TODO: insert error reporting system
 					return
 				}
+				return
 			}
-			break
 		}
 	}
 
@@ -350,6 +352,7 @@ func (p *V1) runRetryableRevertibleJob(job interfaces.RetryableRevertibleJob) {
 					// TODO: insert error reporting system
 					return
 				}
+				return
 			}
 			break
 		}

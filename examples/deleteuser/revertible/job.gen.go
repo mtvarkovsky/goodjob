@@ -11,14 +11,14 @@ import (
 )
 
 type RevertibleDeleteUserDataJob struct {
+	Tasks          []interfaces.Task
+	TaskArgs       map[interfaces.TaskID][]*interfaces.TaskArg
+	Visible        bool
 	LastTask       interfaces.Task
 	LastTaskPos    int
 	LastTaskResult *interfaces.TaskResult
 	ID             interfaces.JobID
 	JobArgs        []interfaces.JobArg
-	Tasks          []interfaces.Task
-	TaskArgs       map[interfaces.TaskID][]*interfaces.TaskArg
-	Visible        bool
 	RevertState    bool
 }
 

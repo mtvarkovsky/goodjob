@@ -103,7 +103,7 @@ func TestRetryableDeleteUser_Success(t *testing.T) {
 	)
 }
 
-func TestRetryableDeleteUser_Failure_RetryCountEcxeeded(t *testing.T) {
+func TestRetryableDeleteUser_Failure_RetryCountExceeded(t *testing.T) {
 	userID := "user123"
 
 	var taskActionsLog []string

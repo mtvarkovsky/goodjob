@@ -53,10 +53,8 @@ func (q *InMemQueue) GetNextJob(args ...any) (interfaces.Job, error) {
 	for i, job := range q.items {
 		if job.GetVisible() {
 			next = q.items[i]
-			err := q.SetJobVisibility(next.GetID(), false)
-			if err != nil {
-				return nil, err
-			}
+			pos, _ := q.itemPosition[next.GetID()]
+			q.items[pos].SetVisible(false)
 			break
 		}
 	}

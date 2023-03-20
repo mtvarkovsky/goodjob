@@ -11,7 +11,6 @@ import (
 )
 
 type RetryableDeleteUserDataJob struct {
-	LastTaskPos         int
 	LastTaskResult      *interfaces.TaskResult
 	ID                  interfaces.JobID
 	JobArgs             []interfaces.JobArg
@@ -19,6 +18,7 @@ type RetryableDeleteUserDataJob struct {
 	TaskArgs            map[interfaces.TaskID][]*interfaces.TaskArg
 	Visible             bool
 	LastTask            interfaces.Task
+	LastTaskPos         int
 	RetryThreshold      int
 	RetryThresholdCount map[interfaces.TaskID]int
 }
