@@ -12,7 +12,7 @@ func Test_InMemQueue_AddJob(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	maxQueueSize := 3
-	queue := NewInMemQueueWithLogs(maxQueueSize)
+	queue := NewInMemQueue(maxQueueSize)
 
 	jobID1 := interfaces.JobID("job1")
 	jobID2 := interfaces.JobID("job2")
@@ -51,7 +51,7 @@ func Test_InMemQueue_RemoveJob(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	maxQueueSize := 3
-	queue := NewInMemQueueWithLogs(maxQueueSize)
+	queue := NewInMemQueue(maxQueueSize)
 
 	jobID1 := interfaces.JobID("job1")
 	jobID2 := interfaces.JobID("job2")
@@ -96,7 +96,7 @@ func Test_InMemQueue_SetJobVisibility(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	maxQueueSize := 3
-	queue := NewInMemQueueWithLogs(maxQueueSize)
+	queue := NewInMemQueue(maxQueueSize)
 
 	jobID := interfaces.JobID("job")
 
@@ -127,7 +127,7 @@ func Test_InMemQueue_GetNextJob(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	maxQueueSize := 3
-	queue := NewInMemQueueWithLogs(maxQueueSize)
+	queue := NewInMemQueue(maxQueueSize)
 
 	// try to get job from empty queue
 	j, err := queue.GetNextJob()
