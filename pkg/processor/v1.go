@@ -29,7 +29,7 @@ func NewV1Processor(
 	}
 }
 
-func (p *V1) Start(args ...any) error {
+func (p *V1) Start(args ...*interfaces.ProcessorArg) error {
 	p.Active = true
 	go func() {
 		for p.Active {
@@ -45,16 +45,21 @@ func (p *V1) Start(args ...any) error {
 	return nil
 }
 
-func (p *V1) Stop(args ...any) error {
+func (p *V1) Stop(args ...*interfaces.ProcessorArg) error {
 	p.Active = false
 	return nil
 }
 
-func (p *V1) AddJob(job interfaces.Job, args ...any) error {
-	return p.Queue.AddJob(job, args...)
+func (p *V1) AddJob(job interfaces.Job, args ...*interfaces.ProcessorArg) error {
+	queueArgs := make([]*interfaces.QueueArg, len(args))
+	for i, a := range args {
+		queueArgs[i].Name = a.Name
+		queueArgs[i].Value = a.Value
+	}
+	return p.Queue.AddJob(job, queueArgs...)
 }
 
-func (p *V1) GetJobResult(id interfaces.JobID, args ...any) (*interfaces.JobResult, error) {
+func (p *V1) GetJobResult(id interfaces.JobID, args ...*interfaces.ProcessorArg) (*interfaces.JobResult, error) {
 	return p.JobResultStorage.Get(id)
 }
 

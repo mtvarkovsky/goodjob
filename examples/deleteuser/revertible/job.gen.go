@@ -11,6 +11,7 @@ import (
 )
 
 type RevertibleDeleteUserDataJob struct {
+	JobArgs        []interfaces.JobArg
 	Tasks          []interfaces.Task
 	TaskArgs       map[interfaces.TaskID][]*interfaces.TaskArg
 	Visible        bool
@@ -18,7 +19,6 @@ type RevertibleDeleteUserDataJob struct {
 	LastTaskPos    int
 	LastTaskResult *interfaces.TaskResult
 	ID             interfaces.JobID
-	JobArgs        []interfaces.JobArg
 	RevertState    bool
 }
 

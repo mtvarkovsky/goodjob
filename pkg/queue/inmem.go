@@ -25,7 +25,7 @@ func NewInMemQueue(maxSize int) *InMemQueue {
 	}
 }
 
-func (q *InMemQueue) AddJob(job interfaces.Job, args ...any) error {
+func (q *InMemQueue) AddJob(job interfaces.Job, args ...*interfaces.QueueArg) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	if len(q.items) == q.maxSize {
@@ -40,7 +40,7 @@ func (q *InMemQueue) AddJob(job interfaces.Job, args ...any) error {
 	return nil
 }
 
-func (q *InMemQueue) GetNextJob(args ...any) (interfaces.Job, error) {
+func (q *InMemQueue) GetNextJob(args ...*interfaces.QueueArg) (interfaces.Job, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
@@ -65,7 +65,7 @@ func (q *InMemQueue) GetNextJob(args ...any) (interfaces.Job, error) {
 	return next, nil
 }
 
-func (q *InMemQueue) RemoveJob(id interfaces.JobID, args ...any) error {
+func (q *InMemQueue) RemoveJob(id interfaces.JobID, args ...*interfaces.QueueArg) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
@@ -96,7 +96,7 @@ func (q *InMemQueue) RemoveJob(id interfaces.JobID, args ...any) error {
 	return nil
 }
 
-func (q *InMemQueue) SetJobVisibility(id interfaces.JobID, visible bool, args ...any) error {
+func (q *InMemQueue) SetJobVisibility(id interfaces.JobID, visible bool, args ...*interfaces.QueueArg) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 

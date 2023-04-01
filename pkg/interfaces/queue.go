@@ -5,9 +5,14 @@ package interfaces
 type (
 	// Queue - basic interface for Job queue.
 	Queue interface {
-		AddJob(job Job, args ...any) error
-		GetNextJob(args ...any) (Job, error)
-		RemoveJob(id JobID, args ...any) error
-		SetJobVisibility(id JobID, visible bool, args ...any) error
+		AddJob(job Job, args ...*QueueArg) error
+		GetNextJob(args ...*QueueArg) (Job, error)
+		RemoveJob(id JobID, args ...*QueueArg) error
+		SetJobVisibility(id JobID, visible bool, args ...*QueueArg) error
+	}
+
+	QueueArg struct {
+		Name  string
+		Value any
 	}
 )

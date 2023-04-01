@@ -11,14 +11,14 @@ import (
 )
 
 type SimpleDeleteUserDataJob struct {
-	LastTask       interfaces.Task
-	LastTaskPos    int
-	LastTaskResult *interfaces.TaskResult
 	ID             interfaces.JobID
 	JobArgs        []interfaces.JobArg
 	Tasks          []interfaces.Task
 	TaskArgs       map[interfaces.TaskID][]*interfaces.TaskArg
 	Visible        bool
+	LastTask       interfaces.Task
+	LastTaskPos    int
+	LastTaskResult *interfaces.TaskResult
 }
 
 func NewSimpleDeleteUserDataJob(userID string, usersClient *dummyservices.UserServiceClient, authClient *dummyservices.AuthServiceClient, ordersClient *dummyservices.OrdersServiceClient) interfaces.Job {

@@ -11,6 +11,7 @@ import (
 )
 
 type RetryableRevertibleDeleteUserDataJob struct {
+	LastTask                    interfaces.Task
 	LastTaskPos                 int
 	LastTaskResult              *interfaces.TaskResult
 	ID                          interfaces.JobID
@@ -18,12 +19,11 @@ type RetryableRevertibleDeleteUserDataJob struct {
 	Tasks                       []interfaces.Task
 	TaskArgs                    map[interfaces.TaskID][]*interfaces.TaskArg
 	Visible                     bool
-	LastTask                    interfaces.Task
+	RevertState                 bool
 	ForwardRetryThreshold       int
 	ForwardRetryThresholdCount  map[interfaces.TaskID]int
 	BackwardRetryThreshold      int
 	BackwardRetryThresholdCount map[interfaces.TaskID]int
-	RevertState                 bool
 }
 
 func NewRetryableRevertibleDeleteUserDataJob(userID string, usersClient *dummyservices.UserServiceClient, authClient *dummyservices.AuthServiceClient, ordersClient *dummyservices.OrdersServiceClient, forwardRetryThreshold int, backwardRetryThreshold int) interfaces.RetryableRevertibleJob {
