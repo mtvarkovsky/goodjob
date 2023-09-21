@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+// TODO: rework tests to remove time.Sleep()
+
 func TestSimpleDeleteUser_Success(t *testing.T) {
 	userID := "user123"
 

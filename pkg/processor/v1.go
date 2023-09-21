@@ -3,16 +3,16 @@ package processor
 import (
 	"fmt"
 	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
+	"sync"
 )
-
-// TODO: refactor everything
 
 type (
 	V1 struct {
 		Queue             goodjob.Queue
 		JobResultStorage  goodjob.JobResultsStorage
 		TaskResultStorage goodjob.TaskResultsStorage
-		Active            bool
+		done              chan bool
+		wg                *sync.WaitGroup
 	}
 )
 
@@ -27,28 +27,28 @@ func NewV1Processor(
 		Queue:             queue,
 		JobResultStorage:  jobResultsStorage,
 		TaskResultStorage: taskResultsStorage,
-		Active:            false,
+		done:              make(chan bool),
+		wg:                &sync.WaitGroup{},
 	}
 }
 
 func (p *V1) Start(args ...*goodjob.ProcessorArg) error {
-	p.Active = true
 	go func() {
-		for p.Active {
-			go func() {
-				err := p.processNextJob()
-				if err != nil {
-					// TODO: insert error reporting system
-					return
-				}
-			}()
+		for {
+			select {
+			case <-p.done:
+				return
+			default:
+				go p.processNextJob()
+			}
 		}
 	}()
 	return nil
 }
 
 func (p *V1) Stop(args ...*goodjob.ProcessorArg) error {
-	p.Active = false
+	p.done <- true
+	p.wg.Wait()
 	return nil
 }
 
@@ -73,22 +73,25 @@ func (p *V1) processNextJob() error {
 	if job == nil {
 		return nil
 	}
-
 	return p.runJob(job)
 }
 
 func (p *V1) runJob(job goodjob.Job) error {
 	switch j := job.(type) {
 	case goodjob.RetryableRevertibleJob:
+		p.wg.Add(1)
 		p.runRetryableRevertibleJob(j)
 		return nil
 	case goodjob.RevertibleJob:
+		p.wg.Add(1)
 		p.runRevertibleJob(j)
 		return nil
 	case goodjob.RetryableJob:
+		p.wg.Add(1)
 		p.runRetryableJob(j)
 		return nil
 	case goodjob.Job:
+		p.wg.Add(1)
 		p.runBasicJob(j)
 		return nil
 	}
@@ -97,6 +100,7 @@ func (p *V1) runJob(job goodjob.Job) error {
 }
 
 func (p *V1) runBasicJob(job goodjob.Job) {
+	defer p.wg.Done()
 	tasks := job.GetTasks()
 
 	for i, task := range tasks {
@@ -184,6 +188,7 @@ func (p *V1) saveJobResult(job goodjob.Job) error {
 }
 
 func (p *V1) runRetryableJob(job goodjob.RetryableJob) {
+	defer p.wg.Done()
 	var tasks []goodjob.Task
 
 	lastRunTask := job.GetLastTask()
@@ -236,6 +241,7 @@ func (p *V1) runRetryableJob(job goodjob.RetryableJob) {
 }
 
 func (p *V1) runRevertibleJob(job goodjob.RevertibleJob) {
+	defer p.wg.Done()
 	var tasks []goodjob.Task
 	var tasksToRevert []goodjob.RevertibleTask
 
@@ -302,6 +308,7 @@ func (p *V1) runRevertibleJob(job goodjob.RevertibleJob) {
 }
 
 func (p *V1) runRetryableRevertibleJob(job goodjob.RetryableRevertibleJob) {
+	defer p.wg.Done()
 	var tasks []goodjob.Task
 	var tasksToRevert []goodjob.RevertibleTask
 

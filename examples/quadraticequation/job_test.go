@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+// TODO: rework tests to remove time.Sleep()
+
 func TestQuadraticEquation(t *testing.T) {
 	job1 := NewQuadraticEquationJob(1.0, 5.0, 6.0)
 	job2 := NewQuadraticEquationJob(1.0, -7.0, -3.0)
