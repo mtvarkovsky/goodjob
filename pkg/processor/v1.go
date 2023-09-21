@@ -5,6 +5,8 @@ import (
 	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 )
 
+// TODO: refactor everything
+
 type (
 	V1 struct {
 		Queue             goodjob.Queue
