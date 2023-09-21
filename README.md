@@ -1,5 +1,5 @@
 # goodjob
-A job execution framework for distributed transactions in micro-service-oriented architectures.
+A a small-scale job execution framework for micro-service-oriented architectures.
 
 It provides building blocks to build small-scale orchestrators that execute jobs in reversible, revertible (or both at the same time) manner.
 
