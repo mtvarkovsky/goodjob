@@ -1,6 +1,6 @@
 This is a simple demonstration job that can solve quadratic equations with real roots.
 
-Tasks (simple math operations) are defined in the [tasks.go](tasks.go file).
+Tasks (simple math operations) are defined in the [tasks.go](tasks.go) file.
 
 The job definition is in the [job.yaml](job.yaml) file.
 
