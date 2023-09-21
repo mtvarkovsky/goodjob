@@ -3,7 +3,7 @@ package queue
 import (
 	"github.com/golang/mock/gomock"
 	"github.com/mtvarkovsky/goodjob/mocks"
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -14,9 +14,9 @@ func Test_InMemQueue_AddJob(t *testing.T) {
 	maxQueueSize := 3
 	queue := NewInMemQueue(maxQueueSize)
 
-	jobID1 := interfaces.JobID("job1")
-	jobID2 := interfaces.JobID("job2")
-	jobID3 := interfaces.JobID("job3")
+	jobID1 := goodjob.JobID("job1")
+	jobID2 := goodjob.JobID("job2")
+	jobID3 := goodjob.JobID("job3")
 
 	// try to add first job
 	job1 := mocks.NewMockJob(ctrl)
@@ -53,9 +53,9 @@ func Test_InMemQueue_RemoveJob(t *testing.T) {
 	maxQueueSize := 3
 	queue := NewInMemQueue(maxQueueSize)
 
-	jobID1 := interfaces.JobID("job1")
-	jobID2 := interfaces.JobID("job2")
-	jobID3 := interfaces.JobID("job3")
+	jobID1 := goodjob.JobID("job1")
+	jobID2 := goodjob.JobID("job2")
+	jobID3 := goodjob.JobID("job3")
 
 	// try to add first job
 	job1 := mocks.NewMockJob(ctrl)
@@ -98,7 +98,7 @@ func Test_InMemQueue_SetJobVisibility(t *testing.T) {
 	maxQueueSize := 3
 	queue := NewInMemQueue(maxQueueSize)
 
-	jobID := interfaces.JobID("job")
+	jobID := goodjob.JobID("job")
 
 	// try to add job
 	job := mocks.NewMockJob(ctrl)
@@ -134,9 +134,9 @@ func Test_InMemQueue_GetNextJob(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Nil(t, j)
 
-	jobID1 := interfaces.JobID("job1")
-	jobID2 := interfaces.JobID("job2")
-	jobID3 := interfaces.JobID("job3")
+	jobID1 := goodjob.JobID("job1")
+	jobID2 := goodjob.JobID("job2")
+	jobID3 := goodjob.JobID("job3")
 
 	// try to add first job
 	job1 := mocks.NewMockJob(ctrl)

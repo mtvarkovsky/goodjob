@@ -4,24 +4,24 @@ package quadraticequation
 
 import (
 	"fmt"
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 	"github.com/oklog/ulid/v2"
 )
 
 type QuadraticEquationJob struct {
-	Tasks          []interfaces.Task
-	TaskArgs       map[interfaces.TaskID][]*interfaces.TaskArg
+	JobArgs        []goodjob.JobArg
+	Tasks          []goodjob.Task
+	TaskArgs       map[goodjob.TaskID][]*goodjob.TaskArg
 	Visible        bool
-	LastTask       interfaces.Task
+	LastTask       goodjob.Task
 	LastTaskPos    int
-	LastTaskResult *interfaces.TaskResult
-	ID             interfaces.JobID
-	JobArgs        []interfaces.JobArg
+	LastTaskResult *goodjob.TaskResult
+	ID             goodjob.JobID
 }
 
-func NewQuadraticEquationJob(a float64, b float64, c float64) interfaces.Job {
-	jobID := interfaces.JobID(fmt.Sprintf("quadratic equation (a * x^2) + (b * x) + c = 0 (%s)", ulid.Make()))
-	jobArgs := []interfaces.JobArg{
+func NewQuadraticEquationJob(a float64, b float64, c float64) goodjob.Job {
+	jobID := goodjob.JobID(fmt.Sprintf("quadratic equation (a * x^2) + (b * x) + c = 0 (%s)", ulid.Make()))
+	jobArgs := []goodjob.JobArg{
 		{
 			Name:  "a",
 			Value: a,
@@ -36,20 +36,20 @@ func NewQuadraticEquationJob(a float64, b float64, c float64) interfaces.Job {
 		},
 	}
 
-	taskIDs := map[string]interfaces.TaskID{
-		"calculate b^2":                                      interfaces.TaskID(fmt.Sprintf("calculate b^2 (%s)", ulid.Make())),
-		"calculate 4 * a * c":                                interfaces.TaskID(fmt.Sprintf("calculate 4 * a * c (%s)", ulid.Make())),
-		"calculate b^2 - (4 * a * c)":                        interfaces.TaskID(fmt.Sprintf("calculate b^2 - (4 * a * c) (%s)", ulid.Make())),
-		"calculate sqrt(b^2 - (4 * a * c))":                  interfaces.TaskID(fmt.Sprintf("calculate sqrt(b^2 - (4 * a * c)) (%s)", ulid.Make())),
-		"calculate -b":                                       interfaces.TaskID(fmt.Sprintf("calculate -b (%s)", ulid.Make())),
-		"calculate -b - sqrt(b^2 - (4 * a * c))":             interfaces.TaskID(fmt.Sprintf("calculate -b - sqrt(b^2 - (4 * a * c)) (%s)", ulid.Make())),
-		"calculate -b + sqrt(b^2 - (4 * a * c))":             interfaces.TaskID(fmt.Sprintf("calculate -b + sqrt(b^2 - (4 * a * c)) (%s)", ulid.Make())),
-		"calculate 2 * a":                                    interfaces.TaskID(fmt.Sprintf("calculate 2 * a (%s)", ulid.Make())),
-		"calculate (-b - sqrt(b^2 - (4 * a * c))) / (2 * a)": interfaces.TaskID(fmt.Sprintf("calculate (-b - sqrt(b^2 - (4 * a * c))) / (2 * a) (%s)", ulid.Make())),
-		"calculate (-b + sqrt(b^2 - (4 * a * c))) / (2 * a)": interfaces.TaskID(fmt.Sprintf("calculate (-b + sqrt(b^2 - (4 * a * c))) / (2 * a) (%s)", ulid.Make())),
-		"solution x1, x2":                                    interfaces.TaskID(fmt.Sprintf("solution x1, x2 (%s)", ulid.Make())),
+	taskIDs := map[string]goodjob.TaskID{
+		"calculate b^2":                                      goodjob.TaskID(fmt.Sprintf("calculate b^2 (%s)", ulid.Make())),
+		"calculate 4 * a * c":                                goodjob.TaskID(fmt.Sprintf("calculate 4 * a * c (%s)", ulid.Make())),
+		"calculate b^2 - (4 * a * c)":                        goodjob.TaskID(fmt.Sprintf("calculate b^2 - (4 * a * c) (%s)", ulid.Make())),
+		"calculate sqrt(b^2 - (4 * a * c))":                  goodjob.TaskID(fmt.Sprintf("calculate sqrt(b^2 - (4 * a * c)) (%s)", ulid.Make())),
+		"calculate -b":                                       goodjob.TaskID(fmt.Sprintf("calculate -b (%s)", ulid.Make())),
+		"calculate -b - sqrt(b^2 - (4 * a * c))":             goodjob.TaskID(fmt.Sprintf("calculate -b - sqrt(b^2 - (4 * a * c)) (%s)", ulid.Make())),
+		"calculate -b + sqrt(b^2 - (4 * a * c))":             goodjob.TaskID(fmt.Sprintf("calculate -b + sqrt(b^2 - (4 * a * c)) (%s)", ulid.Make())),
+		"calculate 2 * a":                                    goodjob.TaskID(fmt.Sprintf("calculate 2 * a (%s)", ulid.Make())),
+		"calculate (-b - sqrt(b^2 - (4 * a * c))) / (2 * a)": goodjob.TaskID(fmt.Sprintf("calculate (-b - sqrt(b^2 - (4 * a * c))) / (2 * a) (%s)", ulid.Make())),
+		"calculate (-b + sqrt(b^2 - (4 * a * c))) / (2 * a)": goodjob.TaskID(fmt.Sprintf("calculate (-b + sqrt(b^2 - (4 * a * c))) / (2 * a) (%s)", ulid.Make())),
+		"solution x1, x2":                                    goodjob.TaskID(fmt.Sprintf("solution x1, x2 (%s)", ulid.Make())),
 	}
-	tasks := []interfaces.Task{
+	tasks := []goodjob.Task{
 		MultiplyNumbersTask{
 			ID:    taskIDs["calculate b^2"],
 			JobID: jobID,
@@ -95,7 +95,7 @@ func NewQuadraticEquationJob(a float64, b float64, c float64) interfaces.Job {
 			JobID: jobID,
 		},
 	}
-	taskArgs := map[interfaces.TaskID][]*interfaces.TaskArg{
+	taskArgs := map[goodjob.TaskID][]*goodjob.TaskArg{
 		taskIDs["calculate b^2"]: {
 			{
 				Name:  "b",
@@ -219,15 +219,15 @@ func NewQuadraticEquationJob(a float64, b float64, c float64) interfaces.Job {
 	}
 }
 
-func (j *QuadraticEquationJob) GetID() interfaces.JobID {
+func (j *QuadraticEquationJob) GetID() goodjob.JobID {
 	return j.ID
 }
 
-func (j *QuadraticEquationJob) GetTasks() []interfaces.Task {
+func (j *QuadraticEquationJob) GetTasks() []goodjob.Task {
 	return j.Tasks
 }
 
-func (j *QuadraticEquationJob) GetTaskArgs(taskID interfaces.TaskID) []*interfaces.TaskArg {
+func (j *QuadraticEquationJob) GetTaskArgs(taskID goodjob.TaskID) []*goodjob.TaskArg {
 	return j.TaskArgs[taskID]
 }
 
@@ -239,11 +239,11 @@ func (j *QuadraticEquationJob) SetVisible(visible bool) {
 	j.Visible = visible
 }
 
-func (j *QuadraticEquationJob) GetLastTask() interfaces.Task {
+func (j *QuadraticEquationJob) GetLastTask() goodjob.Task {
 	return j.LastTask
 }
 
-func (j *QuadraticEquationJob) SetLastTask(task interfaces.Task) {
+func (j *QuadraticEquationJob) SetLastTask(task goodjob.Task) {
 	j.LastTask = task
 }
 
@@ -255,10 +255,10 @@ func (j *QuadraticEquationJob) SetLastTaskPos(pos int) {
 	j.LastTaskPos = pos
 }
 
-func (j *QuadraticEquationJob) GetLastTaskResult() *interfaces.TaskResult {
+func (j *QuadraticEquationJob) GetLastTaskResult() *goodjob.TaskResult {
 	return j.LastTaskResult
 }
 
-func (j *QuadraticEquationJob) SetLastTaskResult(result *interfaces.TaskResult) {
+func (j *QuadraticEquationJob) SetLastTaskResult(result *goodjob.TaskResult) {
 	j.LastTaskResult = result
 }

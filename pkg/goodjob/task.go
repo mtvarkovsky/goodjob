@@ -1,6 +1,6 @@
 //go:generate mockgen -source ./task.go  -destination ../../mocks/task_mock.go -package mocks
 
-package interfaces
+package goodjob
 
 type (
 	// Task - an atomic unit of work within a job

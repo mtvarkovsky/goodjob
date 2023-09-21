@@ -48,39 +48,39 @@ var (
 	defaultImports = []string{
 		"fmt",
 		"github.com/oklog/ulid/v2",
-		"github.com/mtvarkovsky/goodjob/pkg/interfaces",
+		"github.com/mtvarkovsky/goodjob/pkg/goodjob",
 	}
 
 	jobStructFieldToType = map[string]string{
-		"JobID":                  "interfaces.JobID",
-		"TaskID":                 "interfaces.TaskID",
-		"Tasks":                  "[]interfaces.Task",
-		"TaskArgs":               "map[interfaces.TaskID]*interfaces.TaskArg",
-		"JobArgs":                "[]interfaces.JobArg",
-		"LastTask":               "interfaces.Task",
+		"JobID":                  "goodjob.JobID",
+		"TaskID":                 "goodjob.TaskID",
+		"Tasks":                  "[]goodjob.Task",
+		"TaskArgs":               "map[goodjob.TaskID]*goodjob.TaskArg",
+		"JobArgs":                "[]goodjob.JobArg",
+		"LastTask":               "goodjob.Task",
 		"LastTaskPos":            "int",
-		"LastTaskResult":         "*interfaces.TaskResult",
+		"LastTaskResult":         "*goodjob.TaskResult",
 		"Visible":                "bool",
-		"Job":                    "interfaces.Job",
-		"RetryableJob":           "interfaces.RetryableJob",
-		"RevertibleJob":          "interfaces.RevertibleJob",
-		"RetryableRevertibleJob": "interfaces.RetryableRevertibleJob",
+		"Job":                    "goodjob.Job",
+		"RetryableJob":           "goodjob.RetryableJob",
+		"RevertibleJob":          "goodjob.RevertibleJob",
+		"RetryableRevertibleJob": "goodjob.RetryableRevertibleJob",
 	}
 
 	jobStructFields = map[string]string{
-		"ID":             "interfaces.JobID",
-		"JobArgs":        "[]interfaces.JobArg",
-		"Tasks":          "[]interfaces.Task",
-		"TaskArgs":       "map[interfaces.TaskID][]*interfaces.TaskArg",
+		"ID":             "goodjob.JobID",
+		"JobArgs":        "[]goodjob.JobArg",
+		"Tasks":          "[]goodjob.Task",
+		"TaskArgs":       "map[goodjob.TaskID][]*goodjob.TaskArg",
 		"Visible":        "bool",
-		"LastTask":       "interfaces.Task",
+		"LastTask":       "goodjob.Task",
 		"LastTaskPos":    "int",
-		"LastTaskResult": "*interfaces.TaskResult",
+		"LastTaskResult": "*goodjob.TaskResult",
 	}
 
 	retryableJobStructFields = map[string]string{
 		"RetryThreshold":      "int",
-		"RetryThresholdCount": "map[interfaces.TaskID]int",
+		"RetryThresholdCount": "map[goodjob.TaskID]int",
 	}
 
 	revertibleJobStructFields = map[string]string{
@@ -89,9 +89,9 @@ var (
 
 	retryableRevertibleJobStructFields = map[string]string{
 		"ForwardRetryThreshold":       "int",
-		"ForwardRetryThresholdCount":  "map[interfaces.TaskID]int",
+		"ForwardRetryThresholdCount":  "map[goodjob.TaskID]int",
 		"BackwardRetryThreshold":      "int",
-		"BackwardRetryThresholdCount": "map[interfaces.TaskID]int",
+		"BackwardRetryThresholdCount": "map[goodjob.TaskID]int",
 		"RevertState":                 "bool",
 	}
 
@@ -250,10 +250,10 @@ func (g *generator) generateJob() error {
 	}
 	g.builder.WriteString(fmt.Sprintf(") %s {\n", jobStructFieldToType[g.jobSpec.Type]))
 	// prepare job ID
-	g.builder.WriteString(fmt.Sprintf("\tjobID := interfaces.JobID(fmt.Sprintf(\"%s", g.jobSpec.ID))
+	g.builder.WriteString(fmt.Sprintf("\tjobID := goodjob.JobID(fmt.Sprintf(\"%s", g.jobSpec.ID))
 	g.builder.WriteString(" (%s)\", ulid.Make()))\n")
 	// prepare job args
-	g.builder.WriteString("\tjobArgs := []interfaces.JobArg{\n")
+	g.builder.WriteString("\tjobArgs := []goodjob.JobArg{\n")
 	for _, jobArg := range g.jobSpec.Arguments {
 		g.builder.WriteString("\t\t{\n")
 		g.builder.WriteString(fmt.Sprintf("\t\t\tName: \"%s\",\n", jobArg.Name))
@@ -262,15 +262,15 @@ func (g *generator) generateJob() error {
 	}
 	g.builder.WriteString("\t}\n\n")
 	// prepare task IDs
-	g.builder.WriteString("\ttaskIDs := map[string]interfaces.TaskID{\n")
+	g.builder.WriteString("\ttaskIDs := map[string]goodjob.TaskID{\n")
 	for _, task := range g.jobSpec.Tasks {
-		g.builder.WriteString(fmt.Sprintf("\t\t\"%s\": interfaces.TaskID(fmt.Sprintf(\"%s", task.ID, task.ID))
+		g.builder.WriteString(fmt.Sprintf("\t\t\"%s\": goodjob.TaskID(fmt.Sprintf(\"%s", task.ID, task.ID))
 		g.builder.WriteString(" (%s)\", ulid.Make())),\n")
 	}
 	g.builder.WriteString("\t}\n")
 
 	// prepare tasks
-	g.builder.WriteString("\ttasks := []interfaces.Task{\n")
+	g.builder.WriteString("\ttasks := []goodjob.Task{\n")
 	for _, task := range g.jobSpec.Tasks {
 		g.builder.WriteString(fmt.Sprintf("\t\t%s{\n", task.Task))
 		g.builder.WriteString(fmt.Sprintf("\t\t\tID: taskIDs[\"%s\"],\n", task.ID))
@@ -280,7 +280,7 @@ func (g *generator) generateJob() error {
 	g.builder.WriteString("\t}\n")
 
 	// prepare task args
-	g.builder.WriteString("\ttaskArgs := map[interfaces.TaskID][]*interfaces.TaskArg{\n")
+	g.builder.WriteString("\ttaskArgs := map[goodjob.TaskID][]*goodjob.TaskArg{\n")
 	for _, task := range g.jobSpec.Tasks {
 		g.builder.WriteString(fmt.Sprintf("\t\ttaskIDs[\"%s\"]: {\n", task.ID))
 		for _, arg := range task.Arguments {
@@ -314,7 +314,7 @@ func (g *generator) generateJob() error {
 
 	if g.jobSpec.Type == RetryableJob {
 		g.builder.WriteString("\t\tRetryThreshold: retryThreshold,\n")
-		g.builder.WriteString("\t\tRetryThresholdCount: make(map[interfaces.TaskID]int),\n")
+		g.builder.WriteString("\t\tRetryThresholdCount: make(map[goodjob.TaskID]int),\n")
 	}
 
 	if g.jobSpec.Type == RevertibleJob {
@@ -323,9 +323,9 @@ func (g *generator) generateJob() error {
 
 	if g.jobSpec.Type == RetryableRevertibleJob {
 		g.builder.WriteString("\t\tForwardRetryThreshold: forwardRetryThreshold,\n")
-		g.builder.WriteString("\t\tForwardRetryThresholdCount: make(map[interfaces.TaskID]int),\n")
+		g.builder.WriteString("\t\tForwardRetryThresholdCount: make(map[goodjob.TaskID]int),\n")
 		g.builder.WriteString("\t\tBackwardRetryThreshold: backwardRetryThreshold,\n")
-		g.builder.WriteString("\t\tBackwardRetryThresholdCount: make(map[interfaces.TaskID]int),\n")
+		g.builder.WriteString("\t\tBackwardRetryThresholdCount: make(map[goodjob.TaskID]int),\n")
 		g.builder.WriteString("\t\tRevertState: false,\n")
 	}
 
@@ -336,17 +336,17 @@ func (g *generator) generateJob() error {
 	// implement job methods
 
 	// implement GetID()
-	g.builder.WriteString(fmt.Sprintf("func (j *%s) GetID() interfaces.JobID {\n", g.jobSpec.Name))
+	g.builder.WriteString(fmt.Sprintf("func (j *%s) GetID() goodjob.JobID {\n", g.jobSpec.Name))
 	g.builder.WriteString("\treturn j.ID\n")
 	g.builder.WriteString("}\n\n")
 
 	// implement GetTasks()
-	g.builder.WriteString(fmt.Sprintf("func (j *%s) GetTasks() []interfaces.Task {\n", g.jobSpec.Name))
+	g.builder.WriteString(fmt.Sprintf("func (j *%s) GetTasks() []goodjob.Task {\n", g.jobSpec.Name))
 	g.builder.WriteString("\treturn j.Tasks\n")
 	g.builder.WriteString("}\n\n")
 
 	// implement GetTaskArgs()
-	g.builder.WriteString(fmt.Sprintf("func (j *%s) GetTaskArgs(taskID interfaces.TaskID) []*interfaces.TaskArg {\n", g.jobSpec.Name))
+	g.builder.WriteString(fmt.Sprintf("func (j *%s) GetTaskArgs(taskID goodjob.TaskID) []*goodjob.TaskArg {\n", g.jobSpec.Name))
 	g.builder.WriteString("\treturn j.TaskArgs[taskID]\n")
 	g.builder.WriteString("}\n\n")
 
@@ -361,12 +361,12 @@ func (g *generator) generateJob() error {
 	g.builder.WriteString("}\n\n")
 
 	// implement GetLastTask()
-	g.builder.WriteString(fmt.Sprintf("func (j *%s) GetLastTask() interfaces.Task {\n", g.jobSpec.Name))
+	g.builder.WriteString(fmt.Sprintf("func (j *%s) GetLastTask() goodjob.Task {\n", g.jobSpec.Name))
 	g.builder.WriteString("\treturn j.LastTask\n")
 	g.builder.WriteString("}\n\n")
 
 	// implement SetLastTask()
-	g.builder.WriteString(fmt.Sprintf("func (j *%s) SetLastTask(task interfaces.Task) {\n", g.jobSpec.Name))
+	g.builder.WriteString(fmt.Sprintf("func (j *%s) SetLastTask(task goodjob.Task) {\n", g.jobSpec.Name))
 	g.builder.WriteString("\tj.LastTask = task\n")
 	g.builder.WriteString("}\n\n")
 
@@ -381,19 +381,19 @@ func (g *generator) generateJob() error {
 	g.builder.WriteString("}\n\n")
 
 	// implement GetLastTaskResult()
-	g.builder.WriteString(fmt.Sprintf("func (j *%s) GetLastTaskResult() *interfaces.TaskResult {\n", g.jobSpec.Name))
+	g.builder.WriteString(fmt.Sprintf("func (j *%s) GetLastTaskResult() *goodjob.TaskResult {\n", g.jobSpec.Name))
 	g.builder.WriteString("\treturn j.LastTaskResult\n")
 	g.builder.WriteString("}\n\n")
 
 	// implement SetLastTaskResult()
-	g.builder.WriteString(fmt.Sprintf("func (j *%s) SetLastTaskResult(result *interfaces.TaskResult) {\n", g.jobSpec.Name))
+	g.builder.WriteString(fmt.Sprintf("func (j *%s) SetLastTaskResult(result *goodjob.TaskResult) {\n", g.jobSpec.Name))
 	g.builder.WriteString("\tj.LastTaskResult = result\n")
 	g.builder.WriteString("}\n\n")
 
 	// implement RetryableJob methods
 	if g.jobSpec.Type == RetryableJob {
 		// implement GetTasksToRetry()
-		g.builder.WriteString(fmt.Sprintf("func (j *%s) GetTasksToRetry() []interfaces.Task {\n", g.jobSpec.Name))
+		g.builder.WriteString(fmt.Sprintf("func (j *%s) GetTasksToRetry() []goodjob.Task {\n", g.jobSpec.Name))
 		g.builder.WriteString("\tif j.LastTaskResult.Err != nil {\n")
 		g.builder.WriteString("\t\treturn j.Tasks[j.LastTaskPos:]\n")
 		g.builder.WriteString("\t}\n")
@@ -401,12 +401,12 @@ func (g *generator) generateJob() error {
 		g.builder.WriteString("}\n\n")
 
 		// implement IncreaseRetryCount()
-		g.builder.WriteString(fmt.Sprintf("func (j *%s) IncreaseRetryCount(taskID interfaces.TaskID) {\n", g.jobSpec.Name))
+		g.builder.WriteString(fmt.Sprintf("func (j *%s) IncreaseRetryCount(taskID goodjob.TaskID) {\n", g.jobSpec.Name))
 		g.builder.WriteString("\tj.RetryThresholdCount[taskID]++\n")
 		g.builder.WriteString("}\n\n")
 
 		// implement RetryThresholdReached()
-		g.builder.WriteString(fmt.Sprintf("func (j *%s) RetryThresholdReached(taskID interfaces.TaskID) bool {\n", g.jobSpec.Name))
+		g.builder.WriteString(fmt.Sprintf("func (j *%s) RetryThresholdReached(taskID goodjob.TaskID) bool {\n", g.jobSpec.Name))
 		g.builder.WriteString("\treturn j.RetryThresholdCount[taskID] >= j.RetryThreshold")
 		g.builder.WriteString("}\n\n")
 	}
@@ -414,12 +414,12 @@ func (g *generator) generateJob() error {
 	// implement RevertibleJob methods
 	if g.jobSpec.Type == RevertibleJob {
 		// implement GetTasksToRevert()
-		g.builder.WriteString(fmt.Sprintf("func (j *%s) GetTasksToRevert() []interfaces.RevertibleTask {\n", g.jobSpec.Name))
-		g.builder.WriteString("\tvar tasksToRevert []interfaces.RevertibleTask\n")
+		g.builder.WriteString(fmt.Sprintf("func (j *%s) GetTasksToRevert() []goodjob.RevertibleTask {\n", g.jobSpec.Name))
+		g.builder.WriteString("\tvar tasksToRevert []goodjob.RevertibleTask\n")
 		g.builder.WriteString("\tfor i := j.LastTaskPos - 1; i >= 0; i-- {\n")
 		g.builder.WriteString("\t\ttask := j.Tasks[i]\n")
 		g.builder.WriteString("\t\tswitch t := task.(type) {\n")
-		g.builder.WriteString("\t\t\tcase interfaces.RevertibleTask:\n")
+		g.builder.WriteString("\t\t\tcase goodjob.RevertibleTask:\n")
 		g.builder.WriteString("\t\t\t\ttasksToRevert = append(tasksToRevert, t)\n")
 		g.builder.WriteString("\t\t\t}\n")
 		g.builder.WriteString("\t\t}\n")
@@ -440,7 +440,7 @@ func (g *generator) generateJob() error {
 	// implement RevertibleRevertibleJob methods
 	if g.jobSpec.Type == RetryableRevertibleJob {
 		// implement GetTasksToRetry()
-		g.builder.WriteString(fmt.Sprintf("func (j *%s) GetTasksToRetry() []interfaces.Task {\n", g.jobSpec.Name))
+		g.builder.WriteString(fmt.Sprintf("func (j *%s) GetTasksToRetry() []goodjob.Task {\n", g.jobSpec.Name))
 		g.builder.WriteString("\tif j.LastTaskResult.Err != nil {\n")
 		g.builder.WriteString("\t\treturn j.Tasks[j.LastTaskPos:]\n")
 		g.builder.WriteString("\t}\n")
@@ -448,7 +448,7 @@ func (g *generator) generateJob() error {
 		g.builder.WriteString("}\n\n")
 
 		// implement IncreaseRetryCount()
-		g.builder.WriteString(fmt.Sprintf("func (j *%s) IncreaseRetryCount(taskID interfaces.TaskID) {\n", g.jobSpec.Name))
+		g.builder.WriteString(fmt.Sprintf("func (j *%s) IncreaseRetryCount(taskID goodjob.TaskID) {\n", g.jobSpec.Name))
 		g.builder.WriteString("\tif j.RevertState {\n")
 		g.builder.WriteString("\t\tj.BackwardRetryThresholdCount[taskID]++\n")
 		g.builder.WriteString("\t} else {\n")
@@ -457,7 +457,7 @@ func (g *generator) generateJob() error {
 		g.builder.WriteString("}\n\n")
 
 		// implement RetryThresholdReached()
-		g.builder.WriteString(fmt.Sprintf("func (j *%s) RetryThresholdReached(taskID interfaces.TaskID) bool {\n", g.jobSpec.Name))
+		g.builder.WriteString(fmt.Sprintf("func (j *%s) RetryThresholdReached(taskID goodjob.TaskID) bool {\n", g.jobSpec.Name))
 		g.builder.WriteString("\tif j.RevertState {\n")
 		g.builder.WriteString("\t\treturn j.BackwardRetryThresholdCount[taskID] >= j.BackwardRetryThreshold\n")
 		g.builder.WriteString("\t} else {\n")
@@ -466,12 +466,12 @@ func (g *generator) generateJob() error {
 		g.builder.WriteString("}\n\n")
 
 		// implement GetTasksToRevert()
-		g.builder.WriteString(fmt.Sprintf("func (j *%s) GetTasksToRevert() []interfaces.RevertibleTask {\n", g.jobSpec.Name))
-		g.builder.WriteString("\tvar tasksToRevert []interfaces.RevertibleTask\n")
+		g.builder.WriteString(fmt.Sprintf("func (j *%s) GetTasksToRevert() []goodjob.RevertibleTask {\n", g.jobSpec.Name))
+		g.builder.WriteString("\tvar tasksToRevert []goodjob.RevertibleTask\n")
 		g.builder.WriteString("\tfor i := j.LastTaskPos - 1; i >= 0; i-- {\n")
 		g.builder.WriteString("\t\ttask := j.Tasks[i]\n")
 		g.builder.WriteString("\t\tswitch t := task.(type) {\n")
-		g.builder.WriteString("\t\t\tcase interfaces.RevertibleTask:\n")
+		g.builder.WriteString("\t\t\tcase goodjob.RevertibleTask:\n")
 		g.builder.WriteString("\t\t\t\ttasksToRevert = append(tasksToRevert, t)\n")
 		g.builder.WriteString("\t\t\t}\n")
 		g.builder.WriteString("\t\t}\n")

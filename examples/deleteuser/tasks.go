@@ -3,34 +3,33 @@
 //go:generate go run ../../tools/generatejob/ ./revertible/job.yaml revertible ./revertible/job.gen.go
 //go:generate go run ../../tools/generatejob/ ./retryable_revertible/job.yaml retryable_revertible ./retryable_revertible/job.gen.go
 
-
 package deleteuser
 
 import (
 	"fmt"
 	"github.com/mtvarkovsky/goodjob/examples/deleteuser/dummyservices"
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 )
 
 type SafeDeleteUserTask struct {
-	ID    interfaces.TaskID
-	JobID interfaces.JobID
-	Args  []*interfaces.TaskArg
+	ID    goodjob.TaskID
+	JobID goodjob.JobID
+	Args  []*goodjob.TaskArg
 }
 
-func (t SafeDeleteUserTask) GetID() interfaces.TaskID {
+func (t SafeDeleteUserTask) GetID() goodjob.TaskID {
 	return t.ID
 }
 
-func (t SafeDeleteUserTask) GetJobID() interfaces.JobID {
+func (t SafeDeleteUserTask) GetJobID() goodjob.JobID {
 	return t.JobID
 }
 
-func (t SafeDeleteUserTask) Exec(args ...*interfaces.TaskArg) (result *interfaces.TaskResult) {
+func (t SafeDeleteUserTask) Exec(args ...*goodjob.TaskArg) (result *goodjob.TaskResult) {
 	t.Args = args
 	defer func() {
 		if r := recover(); r != nil {
-			result = &interfaces.TaskResult{
+			result = &goodjob.TaskResult{
 				JobID:  t.JobID,
 				TaskID: t.ID,
 				Value:  nil,
@@ -48,7 +47,7 @@ func (t SafeDeleteUserTask) Exec(args ...*interfaces.TaskArg) (result *interface
 
 	err := client.SafeDeleteUser(request)
 
-	return &interfaces.TaskResult{
+	return &goodjob.TaskResult{
 		TaskID: t.ID,
 		JobID:  t.JobID,
 		Value:  nil,
@@ -56,11 +55,11 @@ func (t SafeDeleteUserTask) Exec(args ...*interfaces.TaskArg) (result *interface
 	}
 }
 
-func (t SafeDeleteUserTask) Revert(args ...*interfaces.TaskArg) (result *interfaces.TaskResult) {
+func (t SafeDeleteUserTask) Revert(args ...*goodjob.TaskArg) (result *goodjob.TaskResult) {
 	t.Args = args
 	defer func() {
 		if r := recover(); r != nil {
-			result = &interfaces.TaskResult{
+			result = &goodjob.TaskResult{
 				JobID:  t.JobID,
 				TaskID: t.ID,
 				Value:  nil,
@@ -78,7 +77,7 @@ func (t SafeDeleteUserTask) Revert(args ...*interfaces.TaskArg) (result *interfa
 
 	err := client.RestoreUser(request)
 
-	return &interfaces.TaskResult{
+	return &goodjob.TaskResult{
 		TaskID: t.ID,
 		JobID:  t.JobID,
 		Value:  nil,
@@ -87,24 +86,24 @@ func (t SafeDeleteUserTask) Revert(args ...*interfaces.TaskArg) (result *interfa
 }
 
 type SafeDeleteAuthDataTask struct {
-	ID    interfaces.TaskID
-	JobID interfaces.JobID
-	Args  []*interfaces.TaskArg
+	ID    goodjob.TaskID
+	JobID goodjob.JobID
+	Args  []*goodjob.TaskArg
 }
 
-func (t SafeDeleteAuthDataTask) GetID() interfaces.TaskID {
+func (t SafeDeleteAuthDataTask) GetID() goodjob.TaskID {
 	return t.ID
 }
 
-func (t SafeDeleteAuthDataTask) GetJobID() interfaces.JobID {
+func (t SafeDeleteAuthDataTask) GetJobID() goodjob.JobID {
 	return t.JobID
 }
 
-func (t SafeDeleteAuthDataTask) Exec(args ...*interfaces.TaskArg) (result *interfaces.TaskResult) {
+func (t SafeDeleteAuthDataTask) Exec(args ...*goodjob.TaskArg) (result *goodjob.TaskResult) {
 	t.Args = args
 	defer func() {
 		if r := recover(); r != nil {
-			result = &interfaces.TaskResult{
+			result = &goodjob.TaskResult{
 				JobID:  t.JobID,
 				TaskID: t.ID,
 				Value:  nil,
@@ -122,7 +121,7 @@ func (t SafeDeleteAuthDataTask) Exec(args ...*interfaces.TaskArg) (result *inter
 
 	err := client.SafeDeleteAuthData(request)
 
-	return &interfaces.TaskResult{
+	return &goodjob.TaskResult{
 		TaskID: t.ID,
 		JobID:  t.JobID,
 		Value:  nil,
@@ -130,11 +129,11 @@ func (t SafeDeleteAuthDataTask) Exec(args ...*interfaces.TaskArg) (result *inter
 	}
 }
 
-func (t SafeDeleteAuthDataTask) Revert(args ...*interfaces.TaskArg) (result *interfaces.TaskResult) {
+func (t SafeDeleteAuthDataTask) Revert(args ...*goodjob.TaskArg) (result *goodjob.TaskResult) {
 	t.Args = args
 	defer func() {
 		if r := recover(); r != nil {
-			result = &interfaces.TaskResult{
+			result = &goodjob.TaskResult{
 				JobID:  t.JobID,
 				TaskID: t.ID,
 				Value:  nil,
@@ -152,7 +151,7 @@ func (t SafeDeleteAuthDataTask) Revert(args ...*interfaces.TaskArg) (result *int
 
 	err := client.RestoreAuthData(request)
 
-	return &interfaces.TaskResult{
+	return &goodjob.TaskResult{
 		TaskID: t.ID,
 		JobID:  t.JobID,
 		Value:  nil,
@@ -161,24 +160,24 @@ func (t SafeDeleteAuthDataTask) Revert(args ...*interfaces.TaskArg) (result *int
 }
 
 type SafeDeleteUserOrdersTask struct {
-	ID    interfaces.TaskID
-	JobID interfaces.JobID
-	Args  []*interfaces.TaskArg
+	ID    goodjob.TaskID
+	JobID goodjob.JobID
+	Args  []*goodjob.TaskArg
 }
 
-func (t SafeDeleteUserOrdersTask) GetID() interfaces.TaskID {
+func (t SafeDeleteUserOrdersTask) GetID() goodjob.TaskID {
 	return t.ID
 }
 
-func (t SafeDeleteUserOrdersTask) GetJobID() interfaces.JobID {
+func (t SafeDeleteUserOrdersTask) GetJobID() goodjob.JobID {
 	return t.JobID
 }
 
-func (t SafeDeleteUserOrdersTask) Exec(args ...*interfaces.TaskArg) (result *interfaces.TaskResult) {
+func (t SafeDeleteUserOrdersTask) Exec(args ...*goodjob.TaskArg) (result *goodjob.TaskResult) {
 	t.Args = args
 	defer func() {
 		if r := recover(); r != nil {
-			result = &interfaces.TaskResult{
+			result = &goodjob.TaskResult{
 				JobID:  t.JobID,
 				TaskID: t.ID,
 				Value:  nil,
@@ -196,7 +195,7 @@ func (t SafeDeleteUserOrdersTask) Exec(args ...*interfaces.TaskArg) (result *int
 
 	err := client.SafeDeleteUserOrders(request)
 
-	return &interfaces.TaskResult{
+	return &goodjob.TaskResult{
 		TaskID: t.ID,
 		JobID:  t.JobID,
 		Value:  nil,

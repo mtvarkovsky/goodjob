@@ -1,15 +1,15 @@
 package storage
 
 import (
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func Test_InMemTaskResultsStorage(t *testing.T) {
-	jobID := interfaces.JobID("testJob")
-	taskID := interfaces.TaskID("testTask")
-	taskResult := &interfaces.TaskResult{
+	jobID := goodjob.JobID("testJob")
+	taskID := goodjob.TaskID("testTask")
+	taskResult := &goodjob.TaskResult{
 		JobID:  jobID,
 		TaskID: taskID,
 		Value:  nil,
@@ -35,8 +35,8 @@ func Test_InMemTaskResultsStorage(t *testing.T) {
 }
 
 func Test_InMemJobResultsStorage(t *testing.T) {
-	jobID := interfaces.JobID("testJob")
-	jobResult := &interfaces.JobResult{
+	jobID := goodjob.JobID("testJob")
+	jobResult := &goodjob.JobResult{
 		ID:    jobID,
 		Value: nil,
 		Err:   nil,

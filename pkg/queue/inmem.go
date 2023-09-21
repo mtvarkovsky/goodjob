@@ -2,7 +2,7 @@ package queue
 
 import (
 	"fmt"
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 	"sync"
 )
 
@@ -11,21 +11,21 @@ type (
 	InMemQueue struct {
 		mu           sync.Mutex
 		maxSize      int
-		items        []interfaces.Job
-		itemPosition map[interfaces.JobID]int
+		items        []goodjob.Job
+		itemPosition map[goodjob.JobID]int
 	}
 )
 
-var _ interfaces.Queue = (*InMemQueue)(nil)
+var _ goodjob.Queue = (*InMemQueue)(nil)
 
 func NewInMemQueue(maxSize int) *InMemQueue {
 	return &InMemQueue{
 		maxSize:      maxSize,
-		itemPosition: make(map[interfaces.JobID]int),
+		itemPosition: make(map[goodjob.JobID]int),
 	}
 }
 
-func (q *InMemQueue) AddJob(job interfaces.Job, args ...*interfaces.QueueArg) error {
+func (q *InMemQueue) AddJob(job goodjob.Job, args ...*goodjob.QueueArg) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	if len(q.items) == q.maxSize {
@@ -40,7 +40,7 @@ func (q *InMemQueue) AddJob(job interfaces.Job, args ...*interfaces.QueueArg) er
 	return nil
 }
 
-func (q *InMemQueue) GetNextJob(args ...*interfaces.QueueArg) (interfaces.Job, error) {
+func (q *InMemQueue) GetNextJob(args ...*goodjob.QueueArg) (goodjob.Job, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
@@ -48,7 +48,7 @@ func (q *InMemQueue) GetNextJob(args ...*interfaces.QueueArg) (interfaces.Job, e
 		return nil, nil
 	}
 
-	var next interfaces.Job
+	var next goodjob.Job
 
 	for i, job := range q.items {
 		if job.GetVisible() {
@@ -65,7 +65,7 @@ func (q *InMemQueue) GetNextJob(args ...*interfaces.QueueArg) (interfaces.Job, e
 	return next, nil
 }
 
-func (q *InMemQueue) RemoveJob(id interfaces.JobID, args ...*interfaces.QueueArg) error {
+func (q *InMemQueue) RemoveJob(id goodjob.JobID, args ...*goodjob.QueueArg) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
@@ -96,7 +96,7 @@ func (q *InMemQueue) RemoveJob(id interfaces.JobID, args ...*interfaces.QueueArg
 	return nil
 }
 
-func (q *InMemQueue) SetJobVisibility(id interfaces.JobID, visible bool, args ...*interfaces.QueueArg) error {
+func (q *InMemQueue) SetJobVisibility(id goodjob.JobID, visible bool, args ...*goodjob.QueueArg) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 

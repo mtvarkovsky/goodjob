@@ -4,31 +4,31 @@ package quadraticequation
 
 import (
 	"fmt"
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 	"math"
 )
 
 // AddNumbersTask - task that takes arbitrary list of numbers and sums them.
 type AddNumbersTask struct {
-	ID     interfaces.TaskID
-	JobID  interfaces.JobID
-	Args   []*interfaces.TaskArg
-	Result interfaces.TaskResult
+	ID     goodjob.TaskID
+	JobID  goodjob.JobID
+	Args   []*goodjob.TaskArg
+	Result goodjob.TaskResult
 }
 
-func (t AddNumbersTask) GetID() interfaces.TaskID {
+func (t AddNumbersTask) GetID() goodjob.TaskID {
 	return t.ID
 }
 
-func (t AddNumbersTask) GetJobID() interfaces.JobID {
+func (t AddNumbersTask) GetJobID() goodjob.JobID {
 	return t.JobID
 }
 
-func (t AddNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfaces.TaskResult) {
+func (t AddNumbersTask) Exec(args ...*goodjob.TaskArg) (result *goodjob.TaskResult) {
 	t.Args = args
 	defer func() {
 		if r := recover(); r != nil {
-			result = &interfaces.TaskResult{
+			result = &goodjob.TaskResult{
 				JobID:  t.JobID,
 				TaskID: t.ID,
 				Value:  nil,
@@ -43,7 +43,7 @@ func (t AddNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfaces.Ta
 		res += arg.Value.(float64)
 	}
 
-	return &interfaces.TaskResult{
+	return &goodjob.TaskResult{
 		JobID:  t.JobID,
 		TaskID: t.ID,
 		Value:  res,
@@ -53,26 +53,26 @@ func (t AddNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfaces.Ta
 
 // SubtractNumbersTask - task that takes arbitrary list of numbers and subtracts them.
 type SubtractNumbersTask struct {
-	ID     interfaces.TaskID
-	JobID  interfaces.JobID
-	Args   []*interfaces.TaskArg
-	Result *interfaces.TaskResult
+	ID     goodjob.TaskID
+	JobID  goodjob.JobID
+	Args   []*goodjob.TaskArg
+	Result *goodjob.TaskResult
 }
 
-func (t SubtractNumbersTask) GetID() interfaces.TaskID {
+func (t SubtractNumbersTask) GetID() goodjob.TaskID {
 	return t.ID
 }
 
-func (t SubtractNumbersTask) GetJobID() interfaces.JobID {
+func (t SubtractNumbersTask) GetJobID() goodjob.JobID {
 	return t.JobID
 }
 
-func (t SubtractNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfaces.TaskResult) {
+func (t SubtractNumbersTask) Exec(args ...*goodjob.TaskArg) (result *goodjob.TaskResult) {
 	t.Args = args
 
 	defer func() {
 		if r := recover(); r != nil {
-			result = &interfaces.TaskResult{
+			result = &goodjob.TaskResult{
 				JobID:  t.JobID,
 				TaskID: t.ID,
 				Value:  nil,
@@ -91,7 +91,7 @@ func (t SubtractNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfac
 		}
 	}
 
-	return &interfaces.TaskResult{
+	return &goodjob.TaskResult{
 		JobID:  t.JobID,
 		TaskID: t.ID,
 		Value:  res,
@@ -101,26 +101,26 @@ func (t SubtractNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfac
 
 // MultiplyNumbersTask - task that takes arbitrary list of numbers and multiplies them.
 type MultiplyNumbersTask struct {
-	ID     interfaces.TaskID
-	JobID  interfaces.JobID
-	Args   []*interfaces.TaskArg
-	Result *interfaces.TaskResult
+	ID     goodjob.TaskID
+	JobID  goodjob.JobID
+	Args   []*goodjob.TaskArg
+	Result *goodjob.TaskResult
 }
 
-func (t MultiplyNumbersTask) GetID() interfaces.TaskID {
+func (t MultiplyNumbersTask) GetID() goodjob.TaskID {
 	return t.ID
 }
 
-func (t MultiplyNumbersTask) GetJobID() interfaces.JobID {
+func (t MultiplyNumbersTask) GetJobID() goodjob.JobID {
 	return t.JobID
 }
 
-func (t MultiplyNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfaces.TaskResult) {
+func (t MultiplyNumbersTask) Exec(args ...*goodjob.TaskArg) (result *goodjob.TaskResult) {
 	t.Args = args
 
 	defer func() {
 		if r := recover(); r != nil {
-			result = &interfaces.TaskResult{
+			result = &goodjob.TaskResult{
 				JobID:  t.JobID,
 				TaskID: t.ID,
 				Value:  nil,
@@ -139,7 +139,7 @@ func (t MultiplyNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfac
 		}
 	}
 
-	return &interfaces.TaskResult{
+	return &goodjob.TaskResult{
 		JobID:  t.JobID,
 		TaskID: t.ID,
 		Value:  res,
@@ -149,26 +149,26 @@ func (t MultiplyNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfac
 
 // DivideNumbersTask - task that takes arbitrary list of numbers and divides them sequentially from left to right.
 type DivideNumbersTask struct {
-	ID     interfaces.TaskID
-	JobID  interfaces.JobID
-	Args   []*interfaces.TaskArg
-	Result *interfaces.TaskResult
+	ID     goodjob.TaskID
+	JobID  goodjob.JobID
+	Args   []*goodjob.TaskArg
+	Result *goodjob.TaskResult
 }
 
-func (t DivideNumbersTask) GetID() interfaces.TaskID {
+func (t DivideNumbersTask) GetID() goodjob.TaskID {
 	return t.ID
 }
 
-func (t DivideNumbersTask) GetJobID() interfaces.JobID {
+func (t DivideNumbersTask) GetJobID() goodjob.JobID {
 	return t.JobID
 }
 
-func (t DivideNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfaces.TaskResult) {
+func (t DivideNumbersTask) Exec(args ...*goodjob.TaskArg) (result *goodjob.TaskResult) {
 	t.Args = args
 
 	defer func() {
 		if r := recover(); r != nil {
-			result = &interfaces.TaskResult{
+			result = &goodjob.TaskResult{
 				JobID:  t.JobID,
 				TaskID: t.ID,
 				Value:  nil,
@@ -181,7 +181,7 @@ func (t DivideNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfaces
 
 	for i, arg := range t.Args {
 		if arg.Value.(float64) == 0 {
-			return &interfaces.TaskResult{
+			return &goodjob.TaskResult{
 				JobID:  t.JobID,
 				TaskID: t.ID,
 				Value:  nil,
@@ -195,7 +195,7 @@ func (t DivideNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfaces
 		}
 	}
 
-	return &interfaces.TaskResult{
+	return &goodjob.TaskResult{
 		JobID:  t.JobID,
 		TaskID: t.ID,
 		Value:  res,
@@ -205,26 +205,26 @@ func (t DivideNumbersTask) Exec(args ...*interfaces.TaskArg) (result *interfaces
 
 // SquareRootOfNumberTask - task that takes arbitrary number and tries to get a square root of this number.
 type SquareRootOfNumberTask struct {
-	ID     interfaces.TaskID
-	JobID  interfaces.JobID
-	Args   []*interfaces.TaskArg
-	Result *interfaces.TaskResult
+	ID     goodjob.TaskID
+	JobID  goodjob.JobID
+	Args   []*goodjob.TaskArg
+	Result *goodjob.TaskResult
 }
 
-func (t SquareRootOfNumberTask) GetID() interfaces.TaskID {
+func (t SquareRootOfNumberTask) GetID() goodjob.TaskID {
 	return t.ID
 }
 
-func (t SquareRootOfNumberTask) GetJobID() interfaces.JobID {
+func (t SquareRootOfNumberTask) GetJobID() goodjob.JobID {
 	return t.JobID
 }
 
-func (t SquareRootOfNumberTask) Exec(args ...*interfaces.TaskArg) (result *interfaces.TaskResult) {
+func (t SquareRootOfNumberTask) Exec(args ...*goodjob.TaskArg) (result *goodjob.TaskResult) {
 	t.Args = args
 
 	defer func() {
 		if r := recover(); r != nil {
-			result = &interfaces.TaskResult{
+			result = &goodjob.TaskResult{
 				JobID:  t.JobID,
 				TaskID: t.ID,
 				Value:  nil,
@@ -237,7 +237,7 @@ func (t SquareRootOfNumberTask) Exec(args ...*interfaces.TaskArg) (result *inter
 
 	res = math.Sqrt(args[0].Value.(float64))
 
-	return &interfaces.TaskResult{
+	return &goodjob.TaskResult{
 		JobID:  t.JobID,
 		TaskID: t.ID,
 		Value:  res,
@@ -247,26 +247,26 @@ func (t SquareRootOfNumberTask) Exec(args ...*interfaces.TaskArg) (result *inter
 
 // GetEquationSolutionTask - task that takes two results of previous tasks to get solution of quadratic equation.
 type GetEquationSolutionTask struct {
-	ID     interfaces.TaskID
-	JobID  interfaces.JobID
-	Args   []*interfaces.TaskArg
-	Result *interfaces.TaskResult
+	ID     goodjob.TaskID
+	JobID  goodjob.JobID
+	Args   []*goodjob.TaskArg
+	Result *goodjob.TaskResult
 }
 
-func (t GetEquationSolutionTask) GetID() interfaces.TaskID {
+func (t GetEquationSolutionTask) GetID() goodjob.TaskID {
 	return t.ID
 }
 
-func (t GetEquationSolutionTask) GetJobID() interfaces.JobID {
+func (t GetEquationSolutionTask) GetJobID() goodjob.JobID {
 	return t.JobID
 }
 
-func (t GetEquationSolutionTask) Exec(args ...*interfaces.TaskArg) (result *interfaces.TaskResult) {
+func (t GetEquationSolutionTask) Exec(args ...*goodjob.TaskArg) (result *goodjob.TaskResult) {
 	t.Args = args
 
 	defer func() {
 		if r := recover(); r != nil {
-			result = &interfaces.TaskResult{
+			result = &goodjob.TaskResult{
 				JobID:  t.JobID,
 				TaskID: t.ID,
 				Value:  nil,
@@ -278,7 +278,7 @@ func (t GetEquationSolutionTask) Exec(args ...*interfaces.TaskArg) (result *inte
 	x1 := args[0].Value.(float64)
 	x2 := args[1].Value.(float64)
 
-	return &interfaces.TaskResult{
+	return &goodjob.TaskResult{
 		JobID:  t.JobID,
 		TaskID: t.ID,
 		Value:  []float64{x1, x2},

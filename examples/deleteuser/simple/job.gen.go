@@ -6,24 +6,24 @@ import (
 	"fmt"
 	"github.com/mtvarkovsky/goodjob/examples/deleteuser"
 	"github.com/mtvarkovsky/goodjob/examples/deleteuser/dummyservices"
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 	"github.com/oklog/ulid/v2"
 )
 
 type SimpleDeleteUserDataJob struct {
-	ID             interfaces.JobID
-	JobArgs        []interfaces.JobArg
-	Tasks          []interfaces.Task
-	TaskArgs       map[interfaces.TaskID][]*interfaces.TaskArg
+	ID             goodjob.JobID
+	JobArgs        []goodjob.JobArg
+	Tasks          []goodjob.Task
+	TaskArgs       map[goodjob.TaskID][]*goodjob.TaskArg
 	Visible        bool
-	LastTask       interfaces.Task
+	LastTask       goodjob.Task
 	LastTaskPos    int
-	LastTaskResult *interfaces.TaskResult
+	LastTaskResult *goodjob.TaskResult
 }
 
-func NewSimpleDeleteUserDataJob(userID string, usersClient *dummyservices.UserServiceClient, authClient *dummyservices.AuthServiceClient, ordersClient *dummyservices.OrdersServiceClient) interfaces.Job {
-	jobID := interfaces.JobID(fmt.Sprintf("delete user data (%s)", ulid.Make()))
-	jobArgs := []interfaces.JobArg{
+func NewSimpleDeleteUserDataJob(userID string, usersClient *dummyservices.UserServiceClient, authClient *dummyservices.AuthServiceClient, ordersClient *dummyservices.OrdersServiceClient) goodjob.Job {
+	jobID := goodjob.JobID(fmt.Sprintf("delete user data (%s)", ulid.Make()))
+	jobArgs := []goodjob.JobArg{
 		{
 			Name:  "userID",
 			Value: userID,
@@ -42,12 +42,12 @@ func NewSimpleDeleteUserDataJob(userID string, usersClient *dummyservices.UserSe
 		},
 	}
 
-	taskIDs := map[string]interfaces.TaskID{
-		"safe delete user auth data":   interfaces.TaskID(fmt.Sprintf("safe delete user auth data (%s)", ulid.Make())),
-		"safe delete user data":        interfaces.TaskID(fmt.Sprintf("safe delete user data (%s)", ulid.Make())),
-		"safe delete user orders data": interfaces.TaskID(fmt.Sprintf("safe delete user orders data (%s)", ulid.Make())),
+	taskIDs := map[string]goodjob.TaskID{
+		"safe delete user auth data":   goodjob.TaskID(fmt.Sprintf("safe delete user auth data (%s)", ulid.Make())),
+		"safe delete user data":        goodjob.TaskID(fmt.Sprintf("safe delete user data (%s)", ulid.Make())),
+		"safe delete user orders data": goodjob.TaskID(fmt.Sprintf("safe delete user orders data (%s)", ulid.Make())),
 	}
-	tasks := []interfaces.Task{
+	tasks := []goodjob.Task{
 		deleteuser.SafeDeleteAuthDataTask{
 			ID:    taskIDs["safe delete user auth data"],
 			JobID: jobID,
@@ -61,7 +61,7 @@ func NewSimpleDeleteUserDataJob(userID string, usersClient *dummyservices.UserSe
 			JobID: jobID,
 		},
 	}
-	taskArgs := map[interfaces.TaskID][]*interfaces.TaskArg{
+	taskArgs := map[goodjob.TaskID][]*goodjob.TaskArg{
 		taskIDs["safe delete user auth data"]: {
 			{
 				Name:  "authClient",
@@ -105,15 +105,15 @@ func NewSimpleDeleteUserDataJob(userID string, usersClient *dummyservices.UserSe
 	}
 }
 
-func (j *SimpleDeleteUserDataJob) GetID() interfaces.JobID {
+func (j *SimpleDeleteUserDataJob) GetID() goodjob.JobID {
 	return j.ID
 }
 
-func (j *SimpleDeleteUserDataJob) GetTasks() []interfaces.Task {
+func (j *SimpleDeleteUserDataJob) GetTasks() []goodjob.Task {
 	return j.Tasks
 }
 
-func (j *SimpleDeleteUserDataJob) GetTaskArgs(taskID interfaces.TaskID) []*interfaces.TaskArg {
+func (j *SimpleDeleteUserDataJob) GetTaskArgs(taskID goodjob.TaskID) []*goodjob.TaskArg {
 	return j.TaskArgs[taskID]
 }
 
@@ -125,11 +125,11 @@ func (j *SimpleDeleteUserDataJob) SetVisible(visible bool) {
 	j.Visible = visible
 }
 
-func (j *SimpleDeleteUserDataJob) GetLastTask() interfaces.Task {
+func (j *SimpleDeleteUserDataJob) GetLastTask() goodjob.Task {
 	return j.LastTask
 }
 
-func (j *SimpleDeleteUserDataJob) SetLastTask(task interfaces.Task) {
+func (j *SimpleDeleteUserDataJob) SetLastTask(task goodjob.Task) {
 	j.LastTask = task
 }
 
@@ -141,10 +141,10 @@ func (j *SimpleDeleteUserDataJob) SetLastTaskPos(pos int) {
 	j.LastTaskPos = pos
 }
 
-func (j *SimpleDeleteUserDataJob) GetLastTaskResult() *interfaces.TaskResult {
+func (j *SimpleDeleteUserDataJob) GetLastTaskResult() *goodjob.TaskResult {
 	return j.LastTaskResult
 }
 
-func (j *SimpleDeleteUserDataJob) SetLastTaskResult(result *interfaces.TaskResult) {
+func (j *SimpleDeleteUserDataJob) SetLastTaskResult(result *goodjob.TaskResult) {
 	j.LastTaskResult = result
 }

@@ -1,6 +1,6 @@
 //go:generate mockgen -source ./job.go  -destination ../../mocks/job_mock.go -package mocks
 
-package interfaces
+package goodjob
 
 type (
 	// Job - unit of work that consist of many tasks that have to be executed in a sequential order

@@ -6,26 +6,26 @@ import (
 	"fmt"
 	"github.com/mtvarkovsky/goodjob/examples/deleteuser"
 	"github.com/mtvarkovsky/goodjob/examples/deleteuser/dummyservices"
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 	"github.com/oklog/ulid/v2"
 )
 
 type RetryableDeleteUserDataJob struct {
-	ID                  interfaces.JobID
-	JobArgs             []interfaces.JobArg
-	Tasks               []interfaces.Task
-	TaskArgs            map[interfaces.TaskID][]*interfaces.TaskArg
-	Visible             bool
-	LastTask            interfaces.Task
 	LastTaskPos         int
-	LastTaskResult      *interfaces.TaskResult
+	LastTaskResult      *goodjob.TaskResult
+	ID                  goodjob.JobID
+	JobArgs             []goodjob.JobArg
+	Tasks               []goodjob.Task
+	TaskArgs            map[goodjob.TaskID][]*goodjob.TaskArg
+	Visible             bool
+	LastTask            goodjob.Task
 	RetryThreshold      int
-	RetryThresholdCount map[interfaces.TaskID]int
+	RetryThresholdCount map[goodjob.TaskID]int
 }
 
-func NewRetryableDeleteUserDataJob(userID string, usersClient *dummyservices.UserServiceClient, authClient *dummyservices.AuthServiceClient, ordersClient *dummyservices.OrdersServiceClient, retryThreshold int) interfaces.RetryableJob {
-	jobID := interfaces.JobID(fmt.Sprintf("delete user data with retries (%s)", ulid.Make()))
-	jobArgs := []interfaces.JobArg{
+func NewRetryableDeleteUserDataJob(userID string, usersClient *dummyservices.UserServiceClient, authClient *dummyservices.AuthServiceClient, ordersClient *dummyservices.OrdersServiceClient, retryThreshold int) goodjob.RetryableJob {
+	jobID := goodjob.JobID(fmt.Sprintf("delete user data with retries (%s)", ulid.Make()))
+	jobArgs := []goodjob.JobArg{
 		{
 			Name:  "userID",
 			Value: userID,
@@ -48,12 +48,12 @@ func NewRetryableDeleteUserDataJob(userID string, usersClient *dummyservices.Use
 		},
 	}
 
-	taskIDs := map[string]interfaces.TaskID{
-		"safe delete user auth data":   interfaces.TaskID(fmt.Sprintf("safe delete user auth data (%s)", ulid.Make())),
-		"safe delete user data":        interfaces.TaskID(fmt.Sprintf("safe delete user data (%s)", ulid.Make())),
-		"safe delete user orders data": interfaces.TaskID(fmt.Sprintf("safe delete user orders data (%s)", ulid.Make())),
+	taskIDs := map[string]goodjob.TaskID{
+		"safe delete user auth data":   goodjob.TaskID(fmt.Sprintf("safe delete user auth data (%s)", ulid.Make())),
+		"safe delete user data":        goodjob.TaskID(fmt.Sprintf("safe delete user data (%s)", ulid.Make())),
+		"safe delete user orders data": goodjob.TaskID(fmt.Sprintf("safe delete user orders data (%s)", ulid.Make())),
 	}
-	tasks := []interfaces.Task{
+	tasks := []goodjob.Task{
 		deleteuser.SafeDeleteAuthDataTask{
 			ID:    taskIDs["safe delete user auth data"],
 			JobID: jobID,
@@ -67,7 +67,7 @@ func NewRetryableDeleteUserDataJob(userID string, usersClient *dummyservices.Use
 			JobID: jobID,
 		},
 	}
-	taskArgs := map[interfaces.TaskID][]*interfaces.TaskArg{
+	taskArgs := map[goodjob.TaskID][]*goodjob.TaskArg{
 		taskIDs["safe delete user auth data"]: {
 			{
 				Name:  "authClient",
@@ -109,19 +109,19 @@ func NewRetryableDeleteUserDataJob(userID string, usersClient *dummyservices.Use
 		LastTaskResult:      nil,
 		ID:                  jobID,
 		RetryThreshold:      retryThreshold,
-		RetryThresholdCount: make(map[interfaces.TaskID]int),
+		RetryThresholdCount: make(map[goodjob.TaskID]int),
 	}
 }
 
-func (j *RetryableDeleteUserDataJob) GetID() interfaces.JobID {
+func (j *RetryableDeleteUserDataJob) GetID() goodjob.JobID {
 	return j.ID
 }
 
-func (j *RetryableDeleteUserDataJob) GetTasks() []interfaces.Task {
+func (j *RetryableDeleteUserDataJob) GetTasks() []goodjob.Task {
 	return j.Tasks
 }
 
-func (j *RetryableDeleteUserDataJob) GetTaskArgs(taskID interfaces.TaskID) []*interfaces.TaskArg {
+func (j *RetryableDeleteUserDataJob) GetTaskArgs(taskID goodjob.TaskID) []*goodjob.TaskArg {
 	return j.TaskArgs[taskID]
 }
 
@@ -133,11 +133,11 @@ func (j *RetryableDeleteUserDataJob) SetVisible(visible bool) {
 	j.Visible = visible
 }
 
-func (j *RetryableDeleteUserDataJob) GetLastTask() interfaces.Task {
+func (j *RetryableDeleteUserDataJob) GetLastTask() goodjob.Task {
 	return j.LastTask
 }
 
-func (j *RetryableDeleteUserDataJob) SetLastTask(task interfaces.Task) {
+func (j *RetryableDeleteUserDataJob) SetLastTask(task goodjob.Task) {
 	j.LastTask = task
 }
 
@@ -149,25 +149,25 @@ func (j *RetryableDeleteUserDataJob) SetLastTaskPos(pos int) {
 	j.LastTaskPos = pos
 }
 
-func (j *RetryableDeleteUserDataJob) GetLastTaskResult() *interfaces.TaskResult {
+func (j *RetryableDeleteUserDataJob) GetLastTaskResult() *goodjob.TaskResult {
 	return j.LastTaskResult
 }
 
-func (j *RetryableDeleteUserDataJob) SetLastTaskResult(result *interfaces.TaskResult) {
+func (j *RetryableDeleteUserDataJob) SetLastTaskResult(result *goodjob.TaskResult) {
 	j.LastTaskResult = result
 }
 
-func (j *RetryableDeleteUserDataJob) GetTasksToRetry() []interfaces.Task {
+func (j *RetryableDeleteUserDataJob) GetTasksToRetry() []goodjob.Task {
 	if j.LastTaskResult.Err != nil {
 		return j.Tasks[j.LastTaskPos:]
 	}
 	return nil
 }
 
-func (j *RetryableDeleteUserDataJob) IncreaseRetryCount(taskID interfaces.TaskID) {
+func (j *RetryableDeleteUserDataJob) IncreaseRetryCount(taskID goodjob.TaskID) {
 	j.RetryThresholdCount[taskID]++
 }
 
-func (j *RetryableDeleteUserDataJob) RetryThresholdReached(taskID interfaces.TaskID) bool {
+func (j *RetryableDeleteUserDataJob) RetryThresholdReached(taskID goodjob.TaskID) bool {
 	return j.RetryThresholdCount[taskID] >= j.RetryThreshold
 }

@@ -3,7 +3,7 @@ package simple
 import (
 	"fmt"
 	"github.com/mtvarkovsky/goodjob/examples/deleteuser/dummyservices"
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 	"github.com/mtvarkovsky/goodjob/pkg/processor"
 	"github.com/mtvarkovsky/goodjob/pkg/queue"
 	"github.com/mtvarkovsky/goodjob/pkg/storage"
@@ -72,7 +72,7 @@ func TestSimpleDeleteUser_Success(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
-		interfaces.JobResult{
+		goodjob.JobResult{
 			ID:    job.GetID(),
 			Value: nil,
 			Err:   nil,
@@ -152,7 +152,7 @@ func TestSimpleDeleteUser_Failure_CantDeleteOrders(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
-		interfaces.JobResult{
+		goodjob.JobResult{
 			ID:    job.GetID(),
 			Value: nil,
 			Err:   fmt.Errorf("cant delete user orders"),

@@ -1,6 +1,6 @@
 //go:generate mockgen -source ./queue.go  -destination ../../mocks/queue_mock.go -package mocks
 
-package interfaces
+package goodjob
 
 type (
 	// Queue - basic interface for Job queue.

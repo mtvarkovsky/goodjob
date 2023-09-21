@@ -2,25 +2,25 @@ package processor
 
 import (
 	"fmt"
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 )
 
 type (
 	V1 struct {
-		Queue             interfaces.Queue
-		JobResultStorage  interfaces.JobResultsStorage
-		TaskResultStorage interfaces.TaskResultsStorage
+		Queue             goodjob.Queue
+		JobResultStorage  goodjob.JobResultsStorage
+		TaskResultStorage goodjob.TaskResultsStorage
 		Active            bool
 	}
 )
 
-var _ interfaces.Processor = (*V1)(nil)
+var _ goodjob.Processor = (*V1)(nil)
 
 func NewV1Processor(
-	queue interfaces.Queue,
-	jobResultsStorage interfaces.JobResultsStorage,
-	taskResultsStorage interfaces.TaskResultsStorage,
-) interfaces.Processor {
+	queue goodjob.Queue,
+	jobResultsStorage goodjob.JobResultsStorage,
+	taskResultsStorage goodjob.TaskResultsStorage,
+) goodjob.Processor {
 	return &V1{
 		Queue:             queue,
 		JobResultStorage:  jobResultsStorage,
@@ -29,7 +29,7 @@ func NewV1Processor(
 	}
 }
 
-func (p *V1) Start(args ...*interfaces.ProcessorArg) error {
+func (p *V1) Start(args ...*goodjob.ProcessorArg) error {
 	p.Active = true
 	go func() {
 		for p.Active {
@@ -45,13 +45,13 @@ func (p *V1) Start(args ...*interfaces.ProcessorArg) error {
 	return nil
 }
 
-func (p *V1) Stop(args ...*interfaces.ProcessorArg) error {
+func (p *V1) Stop(args ...*goodjob.ProcessorArg) error {
 	p.Active = false
 	return nil
 }
 
-func (p *V1) AddJob(job interfaces.Job, args ...*interfaces.ProcessorArg) error {
-	queueArgs := make([]*interfaces.QueueArg, len(args))
+func (p *V1) AddJob(job goodjob.Job, args ...*goodjob.ProcessorArg) error {
+	queueArgs := make([]*goodjob.QueueArg, len(args))
 	for i, a := range args {
 		queueArgs[i].Name = a.Name
 		queueArgs[i].Value = a.Value
@@ -59,7 +59,7 @@ func (p *V1) AddJob(job interfaces.Job, args ...*interfaces.ProcessorArg) error 
 	return p.Queue.AddJob(job, queueArgs...)
 }
 
-func (p *V1) GetJobResult(id interfaces.JobID, args ...*interfaces.ProcessorArg) (*interfaces.JobResult, error) {
+func (p *V1) GetJobResult(id goodjob.JobID, args ...*goodjob.ProcessorArg) (*goodjob.JobResult, error) {
 	return p.JobResultStorage.Get(id)
 }
 
@@ -75,18 +75,18 @@ func (p *V1) processNextJob() error {
 	return p.runJob(job)
 }
 
-func (p *V1) runJob(job interfaces.Job) error {
+func (p *V1) runJob(job goodjob.Job) error {
 	switch j := job.(type) {
-	case interfaces.RetryableRevertibleJob:
+	case goodjob.RetryableRevertibleJob:
 		p.runRetryableRevertibleJob(j)
 		return nil
-	case interfaces.RevertibleJob:
+	case goodjob.RevertibleJob:
 		p.runRevertibleJob(j)
 		return nil
-	case interfaces.RetryableJob:
+	case goodjob.RetryableJob:
 		p.runRetryableJob(j)
 		return nil
-	case interfaces.Job:
+	case goodjob.Job:
 		p.runBasicJob(j)
 		return nil
 	}
@@ -94,7 +94,7 @@ func (p *V1) runJob(job interfaces.Job) error {
 	return fmt.Errorf("unknown job type")
 }
 
-func (p *V1) runBasicJob(job interfaces.Job) {
+func (p *V1) runBasicJob(job goodjob.Job) {
 	tasks := job.GetTasks()
 
 	for i, task := range tasks {
@@ -127,7 +127,7 @@ func (p *V1) runBasicJob(job interfaces.Job) {
 	}
 }
 
-func (p *V1) prepareTaskArgs(job interfaces.Job, task interfaces.Task) ([]*interfaces.TaskArg, error) {
+func (p *V1) prepareTaskArgs(job goodjob.Job, task goodjob.Task) ([]*goodjob.TaskArg, error) {
 	taskArgs := job.GetTaskArgs(task.GetID())
 	for _, arg := range taskArgs {
 		if arg.ValueFrom != "" {
@@ -141,7 +141,7 @@ func (p *V1) prepareTaskArgs(job interfaces.Job, task interfaces.Task) ([]*inter
 	return taskArgs, nil
 }
 
-func (p *V1) execTask(job interfaces.Job, taskPos int, task interfaces.Task, args ...*interfaces.TaskArg) (*interfaces.TaskResult, error) {
+func (p *V1) execTask(job goodjob.Job, taskPos int, task goodjob.Task, args ...*goodjob.TaskArg) (*goodjob.TaskResult, error) {
 	res := task.Exec(args...)
 	err := p.saveTaskResult(job, task, taskPos, res)
 	if err != nil {
@@ -150,7 +150,7 @@ func (p *V1) execTask(job interfaces.Job, taskPos int, task interfaces.Task, arg
 	return res, nil
 }
 
-func (p *V1) revertTask(job interfaces.Job, taskPos int, task interfaces.RevertibleTask, args ...*interfaces.TaskArg) (*interfaces.TaskResult, error) {
+func (p *V1) revertTask(job goodjob.Job, taskPos int, task goodjob.RevertibleTask, args ...*goodjob.TaskArg) (*goodjob.TaskResult, error) {
 	res := task.Revert(args...)
 	err := p.saveTaskResult(job, task, taskPos, res)
 	if err != nil {
@@ -159,7 +159,7 @@ func (p *V1) revertTask(job interfaces.Job, taskPos int, task interfaces.Reverti
 	return res, nil
 }
 
-func (p *V1) saveTaskResult(job interfaces.Job, task interfaces.Task, taskPos int, res *interfaces.TaskResult) error {
+func (p *V1) saveTaskResult(job goodjob.Job, task goodjob.Task, taskPos int, res *goodjob.TaskResult) error {
 	err := p.TaskResultStorage.Put(res)
 	if err != nil {
 		return err
@@ -171,9 +171,9 @@ func (p *V1) saveTaskResult(job interfaces.Job, task interfaces.Task, taskPos in
 	return nil
 }
 
-func (p *V1) saveJobResult(job interfaces.Job) error {
+func (p *V1) saveJobResult(job goodjob.Job) error {
 	lastResult := job.GetLastTaskResult()
-	err := p.JobResultStorage.Put(&interfaces.JobResult{
+	err := p.JobResultStorage.Put(&goodjob.JobResult{
 		ID:    lastResult.JobID,
 		Value: lastResult.Value,
 		Err:   lastResult.Err,
@@ -181,8 +181,8 @@ func (p *V1) saveJobResult(job interfaces.Job) error {
 	return err
 }
 
-func (p *V1) runRetryableJob(job interfaces.RetryableJob) {
-	var tasks []interfaces.Task
+func (p *V1) runRetryableJob(job goodjob.RetryableJob) {
+	var tasks []goodjob.Task
 
 	lastRunTask := job.GetLastTask()
 
@@ -233,9 +233,9 @@ func (p *V1) runRetryableJob(job interfaces.RetryableJob) {
 	}
 }
 
-func (p *V1) runRevertibleJob(job interfaces.RevertibleJob) {
-	var tasks []interfaces.Task
-	var tasksToRevert []interfaces.RevertibleTask
+func (p *V1) runRevertibleJob(job goodjob.RevertibleJob) {
+	var tasks []goodjob.Task
+	var tasksToRevert []goodjob.RevertibleTask
 
 	if job.GetRevertState() {
 		tasksToRevert = job.GetTasksToRevert()
@@ -299,9 +299,9 @@ func (p *V1) runRevertibleJob(job interfaces.RevertibleJob) {
 	}
 }
 
-func (p *V1) runRetryableRevertibleJob(job interfaces.RetryableRevertibleJob) {
-	var tasks []interfaces.Task
-	var tasksToRevert []interfaces.RevertibleTask
+func (p *V1) runRetryableRevertibleJob(job goodjob.RetryableRevertibleJob) {
+	var tasks []goodjob.Task
+	var tasksToRevert []goodjob.RevertibleTask
 
 	lastRunTask := job.GetLastTask()
 

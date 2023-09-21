@@ -1,6 +1,6 @@
 //go:generate mockgen -source ./storage.go  -destination ../../mocks/storage_mock.go -package mocks
 
-package interfaces
+package goodjob
 
 type (
 	TaskResultsStorage interface {

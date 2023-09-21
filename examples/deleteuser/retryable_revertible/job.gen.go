@@ -6,29 +6,29 @@ import (
 	"fmt"
 	"github.com/mtvarkovsky/goodjob/examples/deleteuser"
 	"github.com/mtvarkovsky/goodjob/examples/deleteuser/dummyservices"
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 	"github.com/oklog/ulid/v2"
 )
 
 type RetryableRevertibleDeleteUserDataJob struct {
-	LastTask                    interfaces.Task
-	LastTaskPos                 int
-	LastTaskResult              *interfaces.TaskResult
-	ID                          interfaces.JobID
-	JobArgs                     []interfaces.JobArg
-	Tasks                       []interfaces.Task
-	TaskArgs                    map[interfaces.TaskID][]*interfaces.TaskArg
+	Tasks                       []goodjob.Task
+	TaskArgs                    map[goodjob.TaskID][]*goodjob.TaskArg
 	Visible                     bool
+	LastTask                    goodjob.Task
+	LastTaskPos                 int
+	LastTaskResult              *goodjob.TaskResult
+	ID                          goodjob.JobID
+	JobArgs                     []goodjob.JobArg
 	RevertState                 bool
 	ForwardRetryThreshold       int
-	ForwardRetryThresholdCount  map[interfaces.TaskID]int
+	ForwardRetryThresholdCount  map[goodjob.TaskID]int
 	BackwardRetryThreshold      int
-	BackwardRetryThresholdCount map[interfaces.TaskID]int
+	BackwardRetryThresholdCount map[goodjob.TaskID]int
 }
 
-func NewRetryableRevertibleDeleteUserDataJob(userID string, usersClient *dummyservices.UserServiceClient, authClient *dummyservices.AuthServiceClient, ordersClient *dummyservices.OrdersServiceClient, forwardRetryThreshold int, backwardRetryThreshold int) interfaces.RetryableRevertibleJob {
-	jobID := interfaces.JobID(fmt.Sprintf("revertible delete user data with retries (%s)", ulid.Make()))
-	jobArgs := []interfaces.JobArg{
+func NewRetryableRevertibleDeleteUserDataJob(userID string, usersClient *dummyservices.UserServiceClient, authClient *dummyservices.AuthServiceClient, ordersClient *dummyservices.OrdersServiceClient, forwardRetryThreshold int, backwardRetryThreshold int) goodjob.RetryableRevertibleJob {
+	jobID := goodjob.JobID(fmt.Sprintf("revertible delete user data with retries (%s)", ulid.Make()))
+	jobArgs := []goodjob.JobArg{
 		{
 			Name:  "userID",
 			Value: userID,
@@ -55,12 +55,12 @@ func NewRetryableRevertibleDeleteUserDataJob(userID string, usersClient *dummyse
 		},
 	}
 
-	taskIDs := map[string]interfaces.TaskID{
-		"safe delete user auth data":   interfaces.TaskID(fmt.Sprintf("safe delete user auth data (%s)", ulid.Make())),
-		"safe delete user data":        interfaces.TaskID(fmt.Sprintf("safe delete user data (%s)", ulid.Make())),
-		"safe delete user orders data": interfaces.TaskID(fmt.Sprintf("safe delete user orders data (%s)", ulid.Make())),
+	taskIDs := map[string]goodjob.TaskID{
+		"safe delete user auth data":   goodjob.TaskID(fmt.Sprintf("safe delete user auth data (%s)", ulid.Make())),
+		"safe delete user data":        goodjob.TaskID(fmt.Sprintf("safe delete user data (%s)", ulid.Make())),
+		"safe delete user orders data": goodjob.TaskID(fmt.Sprintf("safe delete user orders data (%s)", ulid.Make())),
 	}
-	tasks := []interfaces.Task{
+	tasks := []goodjob.Task{
 		deleteuser.SafeDeleteAuthDataTask{
 			ID:    taskIDs["safe delete user auth data"],
 			JobID: jobID,
@@ -74,7 +74,7 @@ func NewRetryableRevertibleDeleteUserDataJob(userID string, usersClient *dummyse
 			JobID: jobID,
 		},
 	}
-	taskArgs := map[interfaces.TaskID][]*interfaces.TaskArg{
+	taskArgs := map[goodjob.TaskID][]*goodjob.TaskArg{
 		taskIDs["safe delete user auth data"]: {
 			{
 				Name:  "authClient",
@@ -116,22 +116,22 @@ func NewRetryableRevertibleDeleteUserDataJob(userID string, usersClient *dummyse
 		LastTaskResult:              nil,
 		ID:                          jobID,
 		ForwardRetryThreshold:       forwardRetryThreshold,
-		ForwardRetryThresholdCount:  make(map[interfaces.TaskID]int),
+		ForwardRetryThresholdCount:  make(map[goodjob.TaskID]int),
 		BackwardRetryThreshold:      backwardRetryThreshold,
-		BackwardRetryThresholdCount: make(map[interfaces.TaskID]int),
+		BackwardRetryThresholdCount: make(map[goodjob.TaskID]int),
 		RevertState:                 false,
 	}
 }
 
-func (j *RetryableRevertibleDeleteUserDataJob) GetID() interfaces.JobID {
+func (j *RetryableRevertibleDeleteUserDataJob) GetID() goodjob.JobID {
 	return j.ID
 }
 
-func (j *RetryableRevertibleDeleteUserDataJob) GetTasks() []interfaces.Task {
+func (j *RetryableRevertibleDeleteUserDataJob) GetTasks() []goodjob.Task {
 	return j.Tasks
 }
 
-func (j *RetryableRevertibleDeleteUserDataJob) GetTaskArgs(taskID interfaces.TaskID) []*interfaces.TaskArg {
+func (j *RetryableRevertibleDeleteUserDataJob) GetTaskArgs(taskID goodjob.TaskID) []*goodjob.TaskArg {
 	return j.TaskArgs[taskID]
 }
 
@@ -143,11 +143,11 @@ func (j *RetryableRevertibleDeleteUserDataJob) SetVisible(visible bool) {
 	j.Visible = visible
 }
 
-func (j *RetryableRevertibleDeleteUserDataJob) GetLastTask() interfaces.Task {
+func (j *RetryableRevertibleDeleteUserDataJob) GetLastTask() goodjob.Task {
 	return j.LastTask
 }
 
-func (j *RetryableRevertibleDeleteUserDataJob) SetLastTask(task interfaces.Task) {
+func (j *RetryableRevertibleDeleteUserDataJob) SetLastTask(task goodjob.Task) {
 	j.LastTask = task
 }
 
@@ -159,22 +159,22 @@ func (j *RetryableRevertibleDeleteUserDataJob) SetLastTaskPos(pos int) {
 	j.LastTaskPos = pos
 }
 
-func (j *RetryableRevertibleDeleteUserDataJob) GetLastTaskResult() *interfaces.TaskResult {
+func (j *RetryableRevertibleDeleteUserDataJob) GetLastTaskResult() *goodjob.TaskResult {
 	return j.LastTaskResult
 }
 
-func (j *RetryableRevertibleDeleteUserDataJob) SetLastTaskResult(result *interfaces.TaskResult) {
+func (j *RetryableRevertibleDeleteUserDataJob) SetLastTaskResult(result *goodjob.TaskResult) {
 	j.LastTaskResult = result
 }
 
-func (j *RetryableRevertibleDeleteUserDataJob) GetTasksToRetry() []interfaces.Task {
+func (j *RetryableRevertibleDeleteUserDataJob) GetTasksToRetry() []goodjob.Task {
 	if j.LastTaskResult.Err != nil {
 		return j.Tasks[j.LastTaskPos:]
 	}
 	return nil
 }
 
-func (j *RetryableRevertibleDeleteUserDataJob) IncreaseRetryCount(taskID interfaces.TaskID) {
+func (j *RetryableRevertibleDeleteUserDataJob) IncreaseRetryCount(taskID goodjob.TaskID) {
 	if j.RevertState {
 		j.BackwardRetryThresholdCount[taskID]++
 	} else {
@@ -182,7 +182,7 @@ func (j *RetryableRevertibleDeleteUserDataJob) IncreaseRetryCount(taskID interfa
 	}
 }
 
-func (j *RetryableRevertibleDeleteUserDataJob) RetryThresholdReached(taskID interfaces.TaskID) bool {
+func (j *RetryableRevertibleDeleteUserDataJob) RetryThresholdReached(taskID goodjob.TaskID) bool {
 	if j.RevertState {
 		return j.BackwardRetryThresholdCount[taskID] >= j.BackwardRetryThreshold
 	} else {
@@ -190,12 +190,12 @@ func (j *RetryableRevertibleDeleteUserDataJob) RetryThresholdReached(taskID inte
 	}
 }
 
-func (j *RetryableRevertibleDeleteUserDataJob) GetTasksToRevert() []interfaces.RevertibleTask {
-	var tasksToRevert []interfaces.RevertibleTask
+func (j *RetryableRevertibleDeleteUserDataJob) GetTasksToRevert() []goodjob.RevertibleTask {
+	var tasksToRevert []goodjob.RevertibleTask
 	for i := j.LastTaskPos - 1; i >= 0; i-- {
 		task := j.Tasks[i]
 		switch t := task.(type) {
-		case interfaces.RevertibleTask:
+		case goodjob.RevertibleTask:
 			tasksToRevert = append(tasksToRevert, t)
 		}
 	}

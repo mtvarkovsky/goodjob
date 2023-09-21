@@ -6,25 +6,25 @@ import (
 	"fmt"
 	"github.com/mtvarkovsky/goodjob/examples/deleteuser"
 	"github.com/mtvarkovsky/goodjob/examples/deleteuser/dummyservices"
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 	"github.com/oklog/ulid/v2"
 )
 
 type RevertibleDeleteUserDataJob struct {
-	JobArgs        []interfaces.JobArg
-	Tasks          []interfaces.Task
-	TaskArgs       map[interfaces.TaskID][]*interfaces.TaskArg
+	Tasks          []goodjob.Task
+	TaskArgs       map[goodjob.TaskID][]*goodjob.TaskArg
 	Visible        bool
-	LastTask       interfaces.Task
+	LastTask       goodjob.Task
 	LastTaskPos    int
-	LastTaskResult *interfaces.TaskResult
-	ID             interfaces.JobID
+	LastTaskResult *goodjob.TaskResult
+	ID             goodjob.JobID
+	JobArgs        []goodjob.JobArg
 	RevertState    bool
 }
 
-func NewRevertibleDeleteUserDataJob(userID string, usersClient *dummyservices.UserServiceClient, authClient *dummyservices.AuthServiceClient, ordersClient *dummyservices.OrdersServiceClient) interfaces.RevertibleJob {
-	jobID := interfaces.JobID(fmt.Sprintf("delete user data with revert on failure (%s)", ulid.Make()))
-	jobArgs := []interfaces.JobArg{
+func NewRevertibleDeleteUserDataJob(userID string, usersClient *dummyservices.UserServiceClient, authClient *dummyservices.AuthServiceClient, ordersClient *dummyservices.OrdersServiceClient) goodjob.RevertibleJob {
+	jobID := goodjob.JobID(fmt.Sprintf("delete user data with revert on failure (%s)", ulid.Make()))
+	jobArgs := []goodjob.JobArg{
 		{
 			Name:  "userID",
 			Value: userID,
@@ -43,12 +43,12 @@ func NewRevertibleDeleteUserDataJob(userID string, usersClient *dummyservices.Us
 		},
 	}
 
-	taskIDs := map[string]interfaces.TaskID{
-		"safe delete user auth data":   interfaces.TaskID(fmt.Sprintf("safe delete user auth data (%s)", ulid.Make())),
-		"safe delete user data":        interfaces.TaskID(fmt.Sprintf("safe delete user data (%s)", ulid.Make())),
-		"safe delete user orders data": interfaces.TaskID(fmt.Sprintf("safe delete user orders data (%s)", ulid.Make())),
+	taskIDs := map[string]goodjob.TaskID{
+		"safe delete user auth data":   goodjob.TaskID(fmt.Sprintf("safe delete user auth data (%s)", ulid.Make())),
+		"safe delete user data":        goodjob.TaskID(fmt.Sprintf("safe delete user data (%s)", ulid.Make())),
+		"safe delete user orders data": goodjob.TaskID(fmt.Sprintf("safe delete user orders data (%s)", ulid.Make())),
 	}
-	tasks := []interfaces.Task{
+	tasks := []goodjob.Task{
 		deleteuser.SafeDeleteAuthDataTask{
 			ID:    taskIDs["safe delete user auth data"],
 			JobID: jobID,
@@ -62,7 +62,7 @@ func NewRevertibleDeleteUserDataJob(userID string, usersClient *dummyservices.Us
 			JobID: jobID,
 		},
 	}
-	taskArgs := map[interfaces.TaskID][]*interfaces.TaskArg{
+	taskArgs := map[goodjob.TaskID][]*goodjob.TaskArg{
 		taskIDs["safe delete user auth data"]: {
 			{
 				Name:  "authClient",
@@ -107,15 +107,15 @@ func NewRevertibleDeleteUserDataJob(userID string, usersClient *dummyservices.Us
 	}
 }
 
-func (j *RevertibleDeleteUserDataJob) GetID() interfaces.JobID {
+func (j *RevertibleDeleteUserDataJob) GetID() goodjob.JobID {
 	return j.ID
 }
 
-func (j *RevertibleDeleteUserDataJob) GetTasks() []interfaces.Task {
+func (j *RevertibleDeleteUserDataJob) GetTasks() []goodjob.Task {
 	return j.Tasks
 }
 
-func (j *RevertibleDeleteUserDataJob) GetTaskArgs(taskID interfaces.TaskID) []*interfaces.TaskArg {
+func (j *RevertibleDeleteUserDataJob) GetTaskArgs(taskID goodjob.TaskID) []*goodjob.TaskArg {
 	return j.TaskArgs[taskID]
 }
 
@@ -127,11 +127,11 @@ func (j *RevertibleDeleteUserDataJob) SetVisible(visible bool) {
 	j.Visible = visible
 }
 
-func (j *RevertibleDeleteUserDataJob) GetLastTask() interfaces.Task {
+func (j *RevertibleDeleteUserDataJob) GetLastTask() goodjob.Task {
 	return j.LastTask
 }
 
-func (j *RevertibleDeleteUserDataJob) SetLastTask(task interfaces.Task) {
+func (j *RevertibleDeleteUserDataJob) SetLastTask(task goodjob.Task) {
 	j.LastTask = task
 }
 
@@ -143,20 +143,20 @@ func (j *RevertibleDeleteUserDataJob) SetLastTaskPos(pos int) {
 	j.LastTaskPos = pos
 }
 
-func (j *RevertibleDeleteUserDataJob) GetLastTaskResult() *interfaces.TaskResult {
+func (j *RevertibleDeleteUserDataJob) GetLastTaskResult() *goodjob.TaskResult {
 	return j.LastTaskResult
 }
 
-func (j *RevertibleDeleteUserDataJob) SetLastTaskResult(result *interfaces.TaskResult) {
+func (j *RevertibleDeleteUserDataJob) SetLastTaskResult(result *goodjob.TaskResult) {
 	j.LastTaskResult = result
 }
 
-func (j *RevertibleDeleteUserDataJob) GetTasksToRevert() []interfaces.RevertibleTask {
-	var tasksToRevert []interfaces.RevertibleTask
+func (j *RevertibleDeleteUserDataJob) GetTasksToRevert() []goodjob.RevertibleTask {
+	var tasksToRevert []goodjob.RevertibleTask
 	for i := j.LastTaskPos - 1; i >= 0; i-- {
 		task := j.Tasks[i]
 		switch t := task.(type) {
-		case interfaces.RevertibleTask:
+		case goodjob.RevertibleTask:
 			tasksToRevert = append(tasksToRevert, t)
 		}
 	}

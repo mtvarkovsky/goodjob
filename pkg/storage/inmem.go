@@ -2,36 +2,36 @@ package storage
 
 import (
 	"fmt"
-	"github.com/mtvarkovsky/goodjob/pkg/interfaces"
+	"github.com/mtvarkovsky/goodjob/pkg/goodjob"
 	"sync"
 )
 
 type (
 	InMemTaskResultsStorage struct {
 		sync.Mutex
-		data map[interfaces.JobID]map[interfaces.TaskID]*interfaces.TaskResult
+		data map[goodjob.JobID]map[goodjob.TaskID]*goodjob.TaskResult
 	}
 
 	InMemJobResultsStorage struct {
 		sync.Mutex
-		data map[interfaces.JobID]*interfaces.JobResult
+		data map[goodjob.JobID]*goodjob.JobResult
 	}
 )
 
-var _ interfaces.TaskResultsStorage = (*InMemTaskResultsStorage)(nil)
+var _ goodjob.TaskResultsStorage = (*InMemTaskResultsStorage)(nil)
 
-func NewInMemTaskResultStorage() interfaces.TaskResultsStorage {
+func NewInMemTaskResultStorage() goodjob.TaskResultsStorage {
 	return &InMemTaskResultsStorage{
-		data: make(map[interfaces.JobID]map[interfaces.TaskID]*interfaces.TaskResult),
+		data: make(map[goodjob.JobID]map[goodjob.TaskID]*goodjob.TaskResult),
 	}
 }
 
-func (s *InMemTaskResultsStorage) Put(result *interfaces.TaskResult) error {
+func (s *InMemTaskResultsStorage) Put(result *goodjob.TaskResult) error {
 	s.Lock()
 	defer s.Unlock()
 	if val, ok := s.data[result.JobID]; !ok {
 		if val == nil {
-			s.data[result.JobID] = make(map[interfaces.TaskID]*interfaces.TaskResult)
+			s.data[result.JobID] = make(map[goodjob.TaskID]*goodjob.TaskResult)
 		}
 	}
 
@@ -39,7 +39,7 @@ func (s *InMemTaskResultsStorage) Put(result *interfaces.TaskResult) error {
 	return nil
 }
 
-func (s *InMemTaskResultsStorage) Get(jobID interfaces.JobID, taskID interfaces.TaskID) (*interfaces.TaskResult, error) {
+func (s *InMemTaskResultsStorage) Get(jobID goodjob.JobID, taskID goodjob.TaskID) (*goodjob.TaskResult, error) {
 	s.Lock()
 	defer s.Unlock()
 	if _, foundJob := s.data[jobID]; foundJob {
@@ -53,22 +53,22 @@ func (s *InMemTaskResultsStorage) Get(jobID interfaces.JobID, taskID interfaces.
 	return nil, fmt.Errorf("task result for job not found")
 }
 
-var _ interfaces.JobResultsStorage = (*InMemJobResultsStorage)(nil)
+var _ goodjob.JobResultsStorage = (*InMemJobResultsStorage)(nil)
 
-func NewInMemJobResultsStorage() interfaces.JobResultsStorage {
+func NewInMemJobResultsStorage() goodjob.JobResultsStorage {
 	return &InMemJobResultsStorage{
-		data: make(map[interfaces.JobID]*interfaces.JobResult),
+		data: make(map[goodjob.JobID]*goodjob.JobResult),
 	}
 }
 
-func (s *InMemJobResultsStorage) Put(result *interfaces.JobResult) error {
+func (s *InMemJobResultsStorage) Put(result *goodjob.JobResult) error {
 	s.Lock()
 	defer s.Unlock()
 	s.data[result.ID] = result
 	return nil
 }
 
-func (s *InMemJobResultsStorage) Get(id interfaces.JobID) (*interfaces.JobResult, error) {
+func (s *InMemJobResultsStorage) Get(id goodjob.JobID) (*goodjob.JobResult, error) {
 	s.Lock()
 	defer s.Unlock()
 	if res, found := s.data[id]; found {
